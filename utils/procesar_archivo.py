@@ -2,8 +2,10 @@ import openpyxl
 import pandas as pd
 import jaro
 
+url="./files/"
+
 def comprobar(name:str):
-    book= openpyxl.load_workbook("./files/"+name, data_only=True)
+    book= openpyxl.load_workbook(url+name, data_only=True)
     hoja = book.active
     celdas = hoja['A2':'A1000']
     lista_cargue = []
@@ -32,4 +34,3 @@ def buscar(name:str):
     return lista1
     
 
-        

@@ -119,7 +119,7 @@ async def Post(userFound: schema.UserFoundCreate, db: Session = Depends(connecti
 # PUT
 #Edita a los usuarios
 @app.put("/User/{ID}", response_model=schema.UserFound)
-async def Put(ID: int, listsUpdate:schema.UserFound, db: Session = Depends(connection.get_db)):
+async def Put(ID: int, listsUpdate:schema.UserFound, db: Session = Depends(connection.get_db),  db1: Session =Depends(auth_user)):
     
     lists = db.get(model.User, ID) 
     if lists:
@@ -158,7 +158,7 @@ async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depend
     return {"access_token": jwt.encode(acess_token, SECRET, algorithm=ALGORITHM), "token_type": "bearer"}
 
 @app.post("/upload")
-async def uploadfile(file:UploadFile =File(...)):
+async def uploadfile(file:UploadFile =File(...),  db1: Session =Depends(auth_user)):
     existe= path.exists("files")
     if existe:
         await delete_file("files")
@@ -173,13 +173,18 @@ async def uploadfile(file:UploadFile =File(...)):
     return "success"
 
 @app.delete("/delete")
-async def delete_file(folder_name:str):
+async def delete_file(folder_name:str,  db1: Session =Depends(auth_user)):
         shutil.rmtree(getcwd() +"/" + folder_name)
         return JSONResponse(content={
             "removed": True,}
             ,status_code=200)
 
 @app.get("/findcharge/{name}")
-async def findcharge(name:str):
+async def findcharge(name:str,  db1: Session =Depends(auth_user)):
     comprueba= procesar_archivo.buscar(name)
     return comprueba
+
+@app.get("/downloadcharge/{name}")
+async def findcharge(name:str,  db1: Session =Depends(auth_user)):
+    
+    return FileResponse("/files/"+name)
