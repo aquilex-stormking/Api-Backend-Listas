@@ -54,7 +54,7 @@ def consumir(nombre_busca):
     rand = rand1+str(rand2)+rand
     today = str(date.today())
 
-    lista ={'FirstName':nombre_busca,'ListOfac':valOfac,'ListOnu':valOnu,'ListFbi':valFbi,'FindDate':today,'Consulta':rand, 'User':''}
+    lista ={'FirstName':nombre_busca,'ListOfac':valOfac,'ListOnu':valOnu,'ListFbi':valFbi,'FindDate':today,'Consulta':rand}
     
     return lista
 
@@ -123,6 +123,6 @@ def consumir2(lista:list,name:str):
 
     lista ={'FirstName':name,'ListOfac':'','ListOnu':'','ListFbi':'','FindDate':today,'Consulta':rand}
     
-    app.Consume(None,lista)
+    app.insertar(lista)
     
 

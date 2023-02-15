@@ -57,10 +57,6 @@ async def auth_user(token: str = Depends(oauth2)):
 
     return True
     
-    # if token == tokensito:
-    #     return True
-    # else:
-    #     return False
     
 
 #Busca el usuario en la base de datos
@@ -78,17 +74,8 @@ def search_password_db(lists:list,pos:str, passw:str):
             if password.password ==passw:
                 return passw
 
-
-#GET
-#consulta en las listas y devuelve lista
-@app.get("/Consume/{nombre_busca}")
-async def Consume(nombre_busca:str,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
-    print(oauth2)
-    lista=lista
-    if lista:
-        busqueda=lista
-    else:
-        busqueda=consume.consumir(nombre_busca)
+def insertar(lista:list,users:str,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+    busqueda=lista
     
     new_list = model.Listas(firstname = busqueda['FirstName']
                             , listofac = busqueda['ListOfac']
@@ -96,7 +83,27 @@ async def Consume(nombre_busca:str,db: Session = Depends(connection.get_db), db1
                             , listfbi = busqueda['ListFbi']
                             , finddate = busqueda['FindDate']
                             , consulta = busqueda['Consulta']
-                            , user = busqueda['User']
+                            , user = users
+                            )
+    db.add(new_list)
+    db.commit()
+    db.refresh(new_list) 
+    return new_list
+
+#GET
+#consulta en las listas y devuelve lista
+@app.get("/Consume/{nombre_busca}/{users}")
+async def Consume(nombre_busca:str,users:str,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+
+    busqueda=consume.consumir(nombre_busca) 
+    
+    new_list = model.Listas(firstname = busqueda['FirstName']
+                            , listofac = busqueda['ListOfac']
+                            , listonu = busqueda['ListOnu']
+                            , listfbi = busqueda['ListFbi']
+                            , finddate = busqueda['FindDate']
+                            , consulta = busqueda['Consulta']
+                            , user = users
                             )
     db.add(new_list)
     db.commit()
