@@ -195,7 +195,7 @@ async def Put(ID: int, listsUpdate:schema.UserFound, db: Session = Depends(conne
 # DELETE
 #Elimina Usuarios
 @app.delete("/User/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def Delete(id: int,  db: Session = Depends(connection.get_db)):
+async def Delete(id: int,  db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
     user = db.get(model.User, id)
     if user:
         db.delete(user)
@@ -204,7 +204,7 @@ async def Delete(id: int,  db: Session = Depends(connection.get_db)):
 #POST
 #logea al usuario
 @app.post("/login")
-async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depends(connection.get_db)):
+async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
     prueba = await GetAll(db)    
 
     user_db = search_user_db(form.username,prueba)
