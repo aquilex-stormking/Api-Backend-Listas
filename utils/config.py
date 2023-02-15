@@ -7,6 +7,10 @@ class Settings(BaseSettings):
     DB_SERVER: str
     DB_NAME: str
     DB_PORT: int
+    NAME_ARCHIVO_CARGUE:str
+    EMAIL:str
+    CONTRASEÑA_EMAIL:str
+    NAME_ARCHIVO_REPORTE:str
 
     class Config:
         env_file = ".env.sample"

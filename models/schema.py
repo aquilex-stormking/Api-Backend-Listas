@@ -9,6 +9,7 @@ class PersonFoundCreate(BaseModel):
     listfbi: str
     finddate: date
     consulta: str
+    user:str
 
 class PersonFound(BaseModel):
     id: int
@@ -18,6 +19,7 @@ class PersonFound(BaseModel):
     listfbi: str
     finddate: date
     consulta: str
+    user:str
     class Config:
         orm_mode = True
 
@@ -28,6 +30,7 @@ class UserFound(BaseModel):
     password: str
     email: str
     createdate: date
+    state:str
 
     class Config:
         orm_mode = True
@@ -37,6 +40,7 @@ class UserFoundCreate(BaseModel):
     password: str
     email: str
     createdate: date
+    state:str
     # Orm Mode is used to support models that map to ORM objects, in this case model.Patient (sqlAlchemy)
     class Config:
         orm_mode = True

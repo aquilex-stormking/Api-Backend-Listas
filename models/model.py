@@ -12,6 +12,7 @@ class Listas(Base):
     listfbi= Column(String(1))
     finddate= Column(Date)
     consulta= Column(String(5))
+    user=Column(String(50))
 
 class User(Base):
     __tablename__ = 'usuarios'
@@ -21,5 +22,6 @@ class User(Base):
     password= Column(String(100))
     email= Column(String(50))
     createdate= Column(Date)
+    state=Column(String(1))
 
 
