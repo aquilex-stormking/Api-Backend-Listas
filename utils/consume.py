@@ -6,7 +6,9 @@ from .procesar_archivo import buscar2
 import random,string
 import pandas as pd
 import app
+from .config import get_settings
 
+dato=get_settings()
 
 def consumir(nombre_busca):
     
@@ -16,7 +18,7 @@ def consumir(nombre_busca):
     nombre_busca=nombre_busca
 
     #Ofac
-    url ='http://127.0.0.1:8080/ListaOfac'
+    url = dato.URLOFAC
     data = requests.get(url)
     if data.status_code == 200:
         dataOfac= data.json()
@@ -26,7 +28,7 @@ def consumir(nombre_busca):
         if p>=0.77 :
             valOfac='X'
     #Onu
-    url ='http://127.0.0.1:8080/ListaOnu'
+    url =dato.URLONU
     data = requests.get(url)
     if data.status_code == 200:
         dataOnu= data.json()
@@ -36,7 +38,7 @@ def consumir(nombre_busca):
         if p>=0.77 :
             valOnu='X'
     
-    url ='http://127.0.0.1:8080/ListaFbi'
+    url =dato.URLFBI
     data = requests.get(url)
     if data.status_code == 200:
         dataFbi= data.json()
@@ -61,7 +63,7 @@ def consumir(nombre_busca):
 def consumir2(lista:list,name:str):
 
     lista1 = {'Nombre':[],'ListaOnu':[],'ListaOfac':[],'ListaFBI':[],'ListaCargue':[]}
-    writer=pd.ExcelWriter('Reportemasivo.xlsx')
+    writer=pd.ExcelWriter(dato.NAME_ARCHIVO_REPORTE)
     for nombre_busca in lista:
         if nombre_busca[0] is not None:
 
@@ -72,7 +74,7 @@ def consumir2(lista:list,name:str):
             valCargue=buscar2(nombre_busca)
             
             #Ofac
-            url ='http://127.0.0.1:8080/ListaOfac'
+            url =dato.URLOFAC
             data = requests.get(url)
             if data.status_code == 200:
                 dataOfac= data.json()
@@ -82,7 +84,7 @@ def consumir2(lista:list,name:str):
                 if p>=0.77 :
                     valOfac='X'
             #Onu
-            url ='http://127.0.0.1:8080/ListaOnu'
+            url =dato.URLONU
             data = requests.get(url)
             if data.status_code == 200:
                 dataOnu= data.json()
@@ -92,7 +94,7 @@ def consumir2(lista:list,name:str):
                 if p>=0.77 :
                     valOnu='X'
             
-            url ='http://127.0.0.1:8080/ListaFbi'
+            url =dato.URLFBI
             data = requests.get(url)
             if data.status_code == 200:
                 dataFbi= data.json()

@@ -11,7 +11,9 @@ class Settings(BaseSettings):
     EMAIL:str
     CONTRASEÑA_EMAIL:str
     NAME_ARCHIVO_REPORTE:str
-
+    URLOFAC:str
+    URLONU:str
+    URLFBI:str
     class Config:
         env_file = ".env.sample"
 

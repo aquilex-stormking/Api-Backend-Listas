@@ -15,7 +15,7 @@ from jose import jwt, JWTError
 from os import getcwd, mkdir, path, rename
 import shutil
 
-
+#algorimo 
 ALGORITHM="HS256"
 ACCESS_TOKEN_DURATION = 10
 SECRET = "761c78b692385bd23194ea3848b266589f4c4f16e245b0c7a977c29741bee075"
@@ -269,6 +269,7 @@ async def findcharge(name:str,  db1: Session =Depends(auth_user), settings: Sett
 #Realiza busqueda por cargue de archivo cruzando todas las listas y envial  al correo
 @app.post("/uploadMassive/{email}/{users}")
 async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: Session = Depends(connection.get_db),  db1: Session =Depends(auth_user),):
+    
     existe= path.exists("files2")
     if existe:
         await delete_file("files2")
