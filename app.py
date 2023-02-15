@@ -1,4 +1,3 @@
-
 import os
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
 from fastapi.responses import FileResponse, JSONResponse
@@ -16,20 +15,16 @@ from jose import jwt, JWTError
 from os import getcwd, mkdir, path, rename
 import shutil
 
-origins = ["*"]
-
 
 ALGORITHM="HS256"
 ACCESS_TOKEN_DURATION = 10
 SECRET = "761c78b692385bd23194ea3848b266589f4c4f16e245b0c7a977c29741bee075"
 
-
-
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -97,12 +92,25 @@ async def Consume(nombre_busca:str,users:str,db: Session = Depends(connection.ge
     
 
 #GET
-#Obtiene todos los usuarios
+#Obtiene todos las busquedas
 @app.get("/Busquedas", response_model=List[schema.PersonFound])
 async def GetAll1(db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
     query = db.query(model.Listas)
     lists = query.all()
     return lists
+#GET
+#Obtiene todos las busquedas por usuario
+@app.get("/Busqueda/{User}")
+async def GetSingle2(User:str, db: Session = Depends(connection.get_db),db1: Session =Depends(auth_user)):
+    lista= []
+    # get the patient with the given Patient ID
+    query = db.query(model.Listas).filter(model.Listas.user == User).all()
+    lista = query
+
+    if not lista:
+        raise HTTPException(status_code=404, detail=f"User{User} not found")
+
+    return lista
 
 #GET
 #Obtiene todos los usuarios
@@ -112,12 +120,13 @@ async def GetAll(db: Session = Depends(connection.get_db), db1: Session =Depends
     lists = query.all()
     return lists
 
-
+#GET
+#Obtiene el usuario por id
 @app.get("/User/{id}")
 async def GetSingle(id: int, db: Session = Depends(connection.get_db),db1: Session =Depends(auth_user)):
 
     ids =id
-    # get the patient with the given Patient ID
+    
     query = db.query(model.User).filter(model.User.id == ids)
     user = query.one_or_none()
 
@@ -125,6 +134,8 @@ async def GetSingle(id: int, db: Session = Depends(connection.get_db),db1: Sessi
         raise HTTPException(status_code=404, detail=f"User with ID {id} not found")
 
     return user
+
+
 
 # POST
 #Crea usuarios
@@ -136,11 +147,9 @@ async def Post(userFound: schema.UserFoundCreate, db: Session = Depends(connecti
                             ,createdate = userFound.createdate
                             ,state=userFound.state
                             )
-    # add it to the session and commit it
     db.add(new_list2)
-    db.commit()
-    
-    # update the patient instance to get the newly created Id
+    db.commit()    
+    # Actualiza base de datos
     db.refresh(new_list2) 
     # retorna lista
     return new_list2
@@ -184,13 +193,10 @@ async def Put(ID: int, listsUpdate:schema.UserFound, db: Session = Depends(conne
     return lists    
 
 # DELETE
+#Elimina Usuarios
 @app.delete("/User/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def Delete(id: int,  db: Session = Depends(connection.get_db)):
-
-    # get the model.Patient with the given id
     user = db.get(model.User, id)
-
-    # check if patient with given id exists and call delete
     if user:
         db.delete(user)
         db.commit()
@@ -218,6 +224,8 @@ async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depend
 
     return {"access_token": jwt.encode(acess_token, SECRET, algorithm=ALGORITHM), "token_type": "bearer"}
 
+#POST
+#Caga lista personalizada
 @app.post("/upload")
 async def uploadfile(file:UploadFile =File(...),  db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
     existe= path.exists("files")
@@ -234,6 +242,8 @@ async def uploadfile(file:UploadFile =File(...),  db1: Session =Depends(auth_use
         procesar_archivo.comprobar(settings.NAME_ARCHIVO_CARGUE)
     return "success"
 
+#DELETE
+#Elimina lista
 @app.delete("/delete")
 async def delete_file(folder_name:str,  db1: Session =Depends(auth_user)):
         shutil.rmtree(getcwd() +"/" + folder_name)
@@ -241,16 +251,22 @@ async def delete_file(folder_name:str,  db1: Session =Depends(auth_user)):
             "removed": True,}
             ,status_code=200)
 
+#GET
+#Busca en lista personalizada
 @app.get("/findcharge/{name}")
 async def findcharge(name:str,  db1: Session =Depends(auth_user)):
     comprueba= procesar_archivo.buscar(name)
     return comprueba
 
+#GET
+#Descarga lista cargada
 @app.get("/downloadcharge")
 async def findcharge(name:str,  db1: Session =Depends(auth_user), settings: Settings = Depends(get_settings)):
     
     return FileResponse(getcwd()+"files/"+settings.NAME_ARCHIVO_CARGUE)
 
+#POST
+#Realiza busqueda por cargue de archivo cruzando todas las listas y envial  al correo
 @app.post("/uploadMassive/{email}/{users}")
 async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: Session = Depends(connection.get_db),  db1: Session =Depends(auth_user),):
     existe= path.exists("files2")
