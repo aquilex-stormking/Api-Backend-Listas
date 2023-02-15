@@ -112,7 +112,7 @@ def consumir2(lista:list,name:str):
     df1=pd.DataFrame(lista1, columns=['Nombre','ListaOfac','ListaOnu','ListaFBI','ListaCargue'])
     df1.to_excel(writer,'Reporte',index=False)
     writer.save()
-    writer.close()
+    
 
     #Generador de id de consulta
     rand = random.choice(string.ascii_letters)
@@ -123,6 +123,7 @@ def consumir2(lista:list,name:str):
 
     lista ={'FirstName':name,'ListOfac':'','ListOnu':'','ListFbi':'','FindDate':today,'Consulta':rand}
     
-    app.insertar(lista)
+    return lista
+    
     
 

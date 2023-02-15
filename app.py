@@ -20,7 +20,7 @@ origins = ["*"]
 
 
 ALGORITHM="HS256"
-ACCESS_TOKEN_DURATION = 5
+ACCESS_TOKEN_DURATION = 10
 SECRET = "761c78b692385bd23194ea3848b266589f4c4f16e245b0c7a977c29741bee075"
 
 
@@ -74,21 +74,6 @@ def search_password_db(lists:list,pos:str, passw:str):
             if password.password ==passw:
                 return passw
 
-def insertar(lista:list,users:str,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
-    busqueda=lista
-    
-    new_list = model.Listas(firstname = busqueda['FirstName']
-                            , listofac = busqueda['ListOfac']
-                            , listonu = busqueda['ListOnu']
-                            , listfbi = busqueda['ListFbi']
-                            , finddate = busqueda['FindDate']
-                            , consulta = busqueda['Consulta']
-                            , user = users
-                            )
-    db.add(new_list)
-    db.commit()
-    db.refresh(new_list) 
-    return new_list
 
 #GET
 #consulta en las listas y devuelve lista
@@ -266,8 +251,8 @@ async def findcharge(name:str,  db1: Session =Depends(auth_user), settings: Sett
     
     return FileResponse(getcwd()+"files/"+settings.NAME_ARCHIVO_CARGUE)
 
-@app.post("/uploadMassive/{email}")
-async def uploadfilemassive(email:str,file:UploadFile =File(...),  db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+@app.post("/uploadMassive/{email}/{users}")
+async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: Session = Depends(connection.get_db),  db1: Session =Depends(auth_user),):
     existe= path.exists("files2")
     if existe:
         await delete_file("files2")
@@ -278,7 +263,21 @@ async def uploadfilemassive(email:str,file:UploadFile =File(...),  db1: Session 
         content = await file.read()
         myfile.write(content)
         myfile.close()
-        procesar_archivo.comprobar2(file.filename)
+        lista=procesar_archivo.comprobar2(file.filename)
+        busqueda=lista
+    
+        new_list = model.Listas(firstname = busqueda['FirstName']
+                            , listofac = busqueda['ListOfac']
+                            , listonu = busqueda['ListOnu']
+                            , listfbi = busqueda['ListFbi']
+                            , finddate = busqueda['FindDate']
+                            , consulta = busqueda['Consulta']
+                            , user = users
+                            )
+        db.add(new_list)
+        db.commit()
+        db.refresh(new_list) 
         sendmail.sendmail(email)
+        return new_list
 
-    return "success"
+    

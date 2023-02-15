@@ -23,8 +23,8 @@ def comprobar2(name:str):
     dcargue.to_pickle("./files2/dummy.pkl")
     datos = pd.read_pickle("./files2/dummy.pkl") 
     lista = datos.to_numpy().tolist()
-    consume.consumir2(lista,name)
-
+    lista1 = consume.consumir2(lista,name)
+    return lista1
 
 
 def buscar2(name:str):
