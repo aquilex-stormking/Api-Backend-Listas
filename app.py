@@ -29,8 +29,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-crypt = CryptContext(schemes=["bcrypt"])
+dato = get_settings()
+crypt = CryptContext(schemes=[dato.ENCRYPT])
 
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -141,6 +141,10 @@ async def GetSingle(id: int, db: Session = Depends(connection.get_db),db1: Sessi
 #Crea usuarios
 @app.post("/User", response_model=schema.UserFound)
 async def Post(userFound: schema.UserFoundCreate, db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+    
+    myctx = CryptContext(schemes=[dato.ENCRYPT])
+    userFound.password =myctx.hash(userFound.password)
+    
     new_list2 = model.User(  firstname = userFound.firstname
                             ,password = userFound.password
                             ,email= userFound.email
@@ -204,7 +208,7 @@ async def Delete(id: int,  db: Session = Depends(connection.get_db), db1: Sessio
 #POST
 #logea al usuario
 @app.post("/login")
-async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depends(connection.get_db)):
     prueba = await GetAll(db)    
 
     user_db = search_user_db(form.username,prueba)

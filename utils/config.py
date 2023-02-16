@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     URLOFAC:str
     URLONU:str
     URLFBI:str
+    ENCRYPT:str
     class Config:
         env_file = ".env.sample"
 
