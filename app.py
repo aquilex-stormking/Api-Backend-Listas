@@ -150,6 +150,7 @@ async def Post(userFound: schema.UserFoundCreate, db: Session = Depends(connecti
                             ,email= userFound.email
                             ,createdate = userFound.createdate
                             ,state=userFound.state
+                            ,rol = userFound.rol
                             )
     db.add(new_list2)
     db.commit()    
@@ -169,6 +170,7 @@ async def Put(ID: int, listsUpdate:schema.UserFound, db: Session = Depends(conne
         lists.password = listsUpdate.password
         lists.email = listsUpdate.email
         lists.state = listsUpdate.state
+        lists.rol=listsUpdate.rol
         db.commit()
         db.refresh(lists)
 
@@ -224,7 +226,7 @@ async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depend
 
     if user_db is True:
         user_db=form.username
-    acess_token = {"sub":form.username,  "exp": datetime.utcnow()+timedelta(minutes=ACCESS_TOKEN_DURATION)}
+    acess_token = {"sub":form.username,"rol":user_db.rol,  "exp": datetime.utcnow()+timedelta(minutes=ACCESS_TOKEN_DURATION)}
 
     return {"access_token": jwt.encode(acess_token, SECRET, algorithm=ALGORITHM), "token_type": "bearer"}
 

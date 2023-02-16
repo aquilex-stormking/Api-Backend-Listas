@@ -23,5 +23,6 @@ class User(Base):
     email= Column(String(50))
     createdate= Column(Date)
     state=Column(String(1))
+    rol= Column(String(50))
 
 

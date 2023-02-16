@@ -31,6 +31,7 @@ class UserFound(BaseModel):
     email: str
     createdate: date
     state:str
+    rol:str
 
     class Config:
         orm_mode = True
@@ -41,6 +42,7 @@ class UserFoundCreate(BaseModel):
     email: str
     createdate: date
     state:str
+    rol:str
     # Orm Mode is used to support models that map to ORM objects, in this case model.Patient (sqlAlchemy)
     class Config:
         orm_mode = True
