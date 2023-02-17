@@ -165,6 +165,8 @@ async def Post(userFound: schema.UserFoundCreate, db: Session = Depends(connecti
 async def Put(ID: int, listsUpdate:schema.UserFound, db: Session = Depends(connection.get_db),  db1: Session =Depends(auth_user)):
     
     lists = db.get(model.User, ID) 
+    myctx = CryptContext(schemes=[dato.ENCRYPT])
+    listsUpdate.password =myctx.hash(listsUpdate.password)
     if lists:
         lists.firstname = listsUpdate.firstname
         lists.password = listsUpdate.password
@@ -220,9 +222,15 @@ async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depend
             status_code=status.HTTP_400_BAD_REQUEST, detail="El usuario no es correcto")
 
     
+
     if not crypt.verify(form.password, user_db.password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="La contraseña no es correcta")
+    
+    if user_db.state=='0':
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Usuario inactivo")
 
     if user_db is True:
         user_db=form.username
@@ -302,5 +310,3 @@ async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: S
         db.refresh(new_list) 
         sendmail.sendmail(email)
         return new_list
-
-    
