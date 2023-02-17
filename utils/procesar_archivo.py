@@ -28,15 +28,21 @@ def comprobar2(name:str):
 
 
 def buscar2(name:str):
-    datos = pd.read_pickle("./files/dummy.pkl") 
-    lista = datos.to_numpy().tolist()
-    name = name.upper()
-    val=''
-    for datos in lista :
-        datos=str(datos)
-        p= jaro.jaro_metric(name,datos)
-        if p>=0.88 :
-            val='x'
+    try:
+        file = open('./files/dummy.pkl')
+        file.close()    
+        datos = pd.read_pickle("./files/dummy.pkl") 
+        lista = datos.to_numpy().tolist()
+        name = name.upper()
+        val=''
+        for datos in lista :
+            datos=str(datos)
+            p= jaro.jaro_metric(name,datos)
+            if p>=0.88 :
+                val='x'
+    
+    except FileNotFoundError:
+        val=''  
     return val
 
 
