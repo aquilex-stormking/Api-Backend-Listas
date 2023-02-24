@@ -32,7 +32,7 @@ app.add_middleware(
 )
 dato = get_settings()
 crypt = CryptContext(schemes=[dato.ENCRYPT])
-
+    
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")
 
 
