@@ -8,6 +8,7 @@ from models import schema
 from models import model
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext 
 from datetime import datetime, timedelta
@@ -96,6 +97,7 @@ async def Consume(nombre_busca:str,users:str,db: Session = Depends(connection.ge
 @app.get("/Busquedas", response_model=List[schema.PersonFound])
 async def GetAll1(db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
     query = db.query(model.Listas)
+    query = query.order_by(desc(model.Listas.finddate))
     lists = query.all()
     return lists
 #GET
