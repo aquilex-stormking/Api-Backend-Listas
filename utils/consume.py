@@ -15,7 +15,8 @@ def consumir(nombre_busca):
     valOfac=' '
     valOnu=' '
     valFbi=' '
-    nombre_busca=nombre_busca
+    nombre_busca=nombre_busca.upper()
+    nombre_busca=nombre_busca.replace(" ", "")
 
     #Ofac
     url = dato.URLOFAC
@@ -23,7 +24,7 @@ def consumir(nombre_busca):
     if data.status_code == 200:
         dataOfac= data.json()
     for datos in dataOfac :
-        datos=str(datos)
+        datos=str(datos[1])
         p= jaro.jaro_metric(nombre_busca,datos)
         if p>=0.77 :
             valOfac='X'
@@ -33,7 +34,7 @@ def consumir(nombre_busca):
     if data.status_code == 200:
         dataOnu= data.json()
     for datos in dataOnu:
-        datos=str(datos)
+        datos=str(datos[1])
         p= jaro.jaro_metric(nombre_busca,datos)
         if p>=0.77 :
             valOnu='X'
@@ -43,10 +44,11 @@ def consumir(nombre_busca):
     if data.status_code == 200:
         dataFbi= data.json()
     for datos in dataFbi:
-        datos=str(datos)
+        datos=str(datos[1])
+        datos = datos
         p= jaro.jaro_metric(nombre_busca,datos)
         if p>=0.77 :
-            valOnu='X'
+            valFbi='X'
 
 
     #Generador de id de consulta
