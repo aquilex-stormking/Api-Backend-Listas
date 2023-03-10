@@ -89,7 +89,7 @@ async def Consume(nombre_busca:str,users:str,db: Session = Depends(connection.ge
     db.add(new_list)
     db.commit()
     db.refresh(new_list) 
-    return new_list
+    return busqueda
     
 
 #GET

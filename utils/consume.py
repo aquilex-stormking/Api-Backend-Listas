@@ -12,44 +12,55 @@ dato=get_settings()
 
 def consumir(nombre_busca):
     
-    valOfac=' '
-    valOnu=' '
-    valFbi=' '
-    nombre_busca=nombre_busca.upper()
-    nombre_busca=nombre_busca.replace(" ", "")
+
+    listOfac = [] 
+    listOnu = []
+    listFbi = []
+    valOfac = ' ',
+    valOnu = ' '
+    valFbi = ' '
+    nombre_busca = nombre_busca.upper()
+    nombre_busca = nombre_busca.replace(" ", "")
 
     #Ofac
     url = dato.URLOFAC
     data = requests.get(url)
     if data.status_code == 200:
-        dataOfac= data.json()
+        dataOfac = data.json()
     for datos in dataOfac :
-        datos=str(datos[1])
-        p= jaro.jaro_metric(nombre_busca,datos)
-        if p>=0.77 :
-            valOfac='X'
+        nombre = str(datos[1])
+        p = jaro.jaro_metric(nombre_busca,nombre)
+        if p >= 0.77 :
+            valOfac = 'X'
+            diccOnu = {'list':'Ofac','name': datos[1] ,'tipoId':datos[2],'identificacion':datos[3],'direccion':datos[4],'pais':datos[5],'ciudad':datos[6]}
+            listOfac.append(diccOnu)
+            
+            
     #Onu
     url =dato.URLONU
     data = requests.get(url)
     if data.status_code == 200:
         dataOnu= data.json()
     for datos in dataOnu:
-        datos=str(datos[1])
-        p= jaro.jaro_metric(nombre_busca,datos)
+        nombre=str(datos[1])
+        p= jaro.jaro_metric(nombre_busca,nombre)
         if p>=0.77 :
             valOnu='X'
+            diccOnu = {'list':'Onu','name':datos[1],'tipo_documento':datos[3],'numero_documento':datos[4],'description':datos[5],'pais':datos[6],'fecha_nacimiento':datos[7]}
+            listOnu.append(diccOnu)
+
     
     url =dato.URLFBI
     data = requests.get(url)
     if data.status_code == 200:
         dataFbi= data.json()
     for datos in dataFbi:
-        datos=str(datos[1])
-        datos = datos
-        p= jaro.jaro_metric(nombre_busca,datos)
+        nombre=str(datos[1])
+        p= jaro.jaro_metric(nombre_busca,nombre)
         if p>=0.77 :
             valFbi='X'
-
+            diccFbi = {'list':'Fbi','name':datos[1],'detalle':datos[2],'link_info':datos[3],'nacionalidad':datos[4],'link_picture':datos[5]}
+            listFbi.append(diccFbi)
 
     #Generador de id de consulta
     rand = random.choice(string.ascii_letters)
@@ -57,8 +68,9 @@ def consumir(nombre_busca):
     rand2 = random.randint(1, 20) * 5
     rand = rand1+str(rand2)+rand
     today = str(date.today())
+    lista_busquedad = listOnu + listOfac + listFbi
 
-    lista ={'FirstName':nombre_busca,'ListOfac':valOfac,'ListOnu':valOnu,'ListFbi':valFbi,'FindDate':today,'Consulta':rand}
+    lista ={'FirstName':nombre_busca,'ListOfac':valOfac,'ListOnu':valOnu,'ListFbi':valFbi,'FindDate':today,'Consulta':rand,'list_find':lista_busquedad}
     
     return lista
 
