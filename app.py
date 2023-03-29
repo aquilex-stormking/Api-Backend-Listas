@@ -73,10 +73,30 @@ def search_password_db(lists:list,pos:str, passw:str):
 
 #GET
 #consulta en las listas y devuelve lista
-@app.get("/Consume/{nombre_busca}/{users}")
-async def Consume(nombre_busca:str,users:str,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+@app.get("/Consume/{nombre_busca}/{users}/{coincidencia}")
+async def Consume(nombre_busca:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
 
-    busqueda=consume.consumir(nombre_busca) 
+    busqueda=consume.consumir(nombre_busca,coincidencia) 
+    
+    new_list = model.Listas(firstname = busqueda['FirstName']
+                            , listofac = busqueda['ListOfac']
+                            , listonu = busqueda['ListOnu']
+                            , listfbi = busqueda['ListFbi']
+                            , finddate = busqueda['FindDate']
+                            , consulta = busqueda['Consulta']
+                            , user = users
+                            )
+    db.add(new_list)
+    db.commit()
+    db.refresh(new_list) 
+    return busqueda
+
+#GET
+#consulta en las listas y devuelve lista
+@app.get("/Consumes/{id}/{users}/{coincidencia}")
+async def Consume(id:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+
+    busqueda=consume.consumirId(id,coincidencia) 
     
     new_list = model.Listas(firstname = busqueda['FirstName']
                             , listofac = busqueda['ListOfac']

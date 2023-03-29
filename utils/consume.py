@@ -10,9 +10,8 @@ from .config import get_settings
 
 dato=get_settings()
 
-def consumir(nombre_busca):
-    
-
+def consumir(nombre_busca,coincidencia):
+    coincidencia = coincidencia/100
     listOfac = [] 
     listOnu = []
     listFbi = []
@@ -30,7 +29,7 @@ def consumir(nombre_busca):
     for datos in dataOfac :
         nombre = str(datos[1])
         p = jaro.jaro_metric(nombre_busca,nombre)
-        if p >= 0.77 :
+        if p >= coincidencia :
             valOfac = 'X'
             diccOnu = {'list':'Ofac','name': datos[1] ,'tipoId':datos[2],'identificacion':datos[3],'direccion':datos[4],'pais':datos[5],'ciudad':datos[6]}
             listOfac.append(diccOnu)
@@ -44,23 +43,27 @@ def consumir(nombre_busca):
     for datos in dataOnu:
         nombre=str(datos[1])
         p= jaro.jaro_metric(nombre_busca,nombre)
-        if p>=0.77 :
+        if p>=coincidencia :
             valOnu='X'
             diccOnu = {'list':'Onu','name':datos[1],'tipo_documento':datos[2],'numero_documento':datos[3],'description':datos[4],'pais':datos[5],'fecha_nacimiento':datos[6]}
             listOnu.append(diccOnu)
 
     
-    # url =dato.URLFBI
-    # data = requests.get(url)
-    # if data.status_code == 200:
-    #     dataFbi= data.json()
-    # for datos in dataFbi:
-    #     nombre=str(datos[1])
-    #     p= jaro.jaro_metric(nombre_busca,nombre)
-    #     if p>=0.77 :
-    #         valFbi='X'
-    #         diccFbi = {'list':'Fbi','name':datos[1],'detalle':datos[2],'link_info':datos[3],'nacionalidad':datos[4],'link_picture':datos[5]}
-    #         listFbi.append(diccFbi)
+    url =dato.URLFBI
+    try:
+        data = requests.get(url)
+        if data.status_code == 200:
+            dataFbi= data.json()
+        for datos in dataFbi:
+            nombre=str(datos[1])
+            p= jaro.jaro_metric(nombre_busca,nombre)
+            if p>=0.77 :
+                valFbi='X'
+                diccFbi = {'list':'Fbi','name':datos[1],'detalle':datos[2],'link_info':datos[3],'nacionalidad':datos[4],'link_picture':datos[5]}
+                listFbi.append(diccFbi)
+    except:
+        pass
+
 
     #Generador de id de consulta
     rand = random.choice(string.ascii_letters)
@@ -71,6 +74,56 @@ def consumir(nombre_busca):
     lista_busquedad = listOnu + listOfac + listFbi
 
     lista ={'FirstName':nombre_busca,'ListOfac':valOfac,'ListOnu':valOnu,'ListFbi':valFbi,'FindDate':today,'Consulta':rand,'list_find':lista_busquedad}
+    
+    return lista
+
+def consumirId(id,coincidencia):
+    coincidencia = coincidencia/100
+    listOfac = [] 
+    listOnu = []
+    listFbi = []
+    valOfac = ' ',
+    valOnu = ' '
+    valFbi = ' '
+    id = id
+
+    #Ofac
+    url = dato.URLOFAC
+    data = requests.get(url)
+    if data.status_code == 200:
+        dataOfac = data.json()
+    for datos in dataOfac :
+        nombre = str(datos[3])
+        p = jaro.jaro_metric(id,nombre)
+        if p >= coincidencia :
+            valOfac = 'X'
+            diccOnu = {'list':'Ofac','name': datos[1] ,'tipoId':datos[2],'identificacion':datos[3],'direccion':datos[4],'pais':datos[5],'ciudad':datos[6]}
+            listOfac.append(diccOnu)
+            
+            
+    #Onu
+    url =dato.URLONU
+    data = requests.get(url)
+    if data.status_code == 200:
+        dataOnu= data.json()
+    for datos in dataOnu:
+        nombre=str(datos[3])
+        p= jaro.jaro_metric(id,nombre)
+        if p>=coincidencia :
+            valOnu='X'
+            diccOnu = {'list':'Onu','name':datos[1],'tipo_documento':datos[2],'numero_documento':datos[3],'description':datos[4],'pais':datos[5],'fecha_nacimiento':datos[6]}
+            listOnu.append(diccOnu)
+
+    #Generador de id de consulta
+    rand = random.choice(string.ascii_letters)
+    rand1 = random.choice(string.ascii_letters)
+    rand2 = random.randint(1, 20) * 5
+    rand = rand1+str(rand2)+rand
+    today = str(date.today())
+    lista_busquedad = listOnu + listOfac + listFbi
+
+    lista ={'FirstName':id,'ListOfac':valOfac,'ListOnu':valOnu,'ListFbi':valFbi,'FindDate':today,'Consulta':rand,'list_find':lista_busquedad}
+    
     return lista
 
 def consumir2(lista:list,name:str):
