@@ -49,3 +49,24 @@ class UserFoundCreate(BaseModel):
 
 class UserDB(UserFoundCreate):
     password:str
+
+class MatchFound(BaseModel):
+    id: int
+    listas_id: int
+    observacion: str
+    fecha: date
+    resultado: str
+    usuario: int
+
+    class Config:
+        orm_mode = True    
+
+class MatchFoundCreate(BaseModel):
+    listas_id: int
+    observacion: str
+    fecha: date
+    resultado: str
+    usuario: int
+
+    class Config:
+        orm_mode = True  

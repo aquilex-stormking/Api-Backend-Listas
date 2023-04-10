@@ -157,7 +157,14 @@ async def GetSingle(id: int, db: Session = Depends(connection.get_db),db1: Sessi
 
     return user
 
-
+#GET
+#Obtiene todos los matchs
+@app.get("/Matchs", response_model=List[schema.MatchFound])
+async def GetAll1(db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+    query = db.query(model.Match)
+    query = query.order_by(desc(model.Match.fecha))
+    lists = query.all()
+    return lists
 
 # POST
 #Crea usuarios
@@ -173,6 +180,25 @@ async def Post(userFound: schema.UserFoundCreate, db: Session = Depends(connecti
                             ,createdate = userFound.createdate
                             ,state=userFound.state
                             ,rol = userFound.rol
+                            )
+    db.add(new_list2)
+    db.commit()    
+    # Actualiza base de datos
+    db.refresh(new_list2) 
+    # retorna lista
+    return new_list2
+
+# POST
+#Crea usuarios
+@app.post("/Match", response_model=schema.MatchFound)
+async def Post(matchFound: schema.MatchFoundCreate, db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+    
+    
+    new_list2 = model.Match( listas_id = matchFound.listas_id
+                            ,observacion = matchFound.observacion
+                            ,resultado = matchFound.resultado
+                            ,fecha = matchFound.fecha
+                            ,usuario = matchFound.usuario
                             )
     db.add(new_list2)
     db.commit()    
