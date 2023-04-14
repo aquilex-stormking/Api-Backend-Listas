@@ -15,7 +15,7 @@ def consumir(nombre_busca,coincidencia):
     listOfac = [] 
     listOnu = []
     listFbi = []
-    valOfac = ' ',
+    valOfac = ' '
     valOnu = ' '
     valFbi = ' '
     nombre_busca = nombre_busca.upper()
@@ -82,7 +82,7 @@ def consumirId(id,coincidencia):
     listOfac = [] 
     listOnu = []
     listFbi = []
-    valOfac = ' ',
+    valOfac = ' '
     valOnu = ' '
     valFbi = ' '
     id = id
