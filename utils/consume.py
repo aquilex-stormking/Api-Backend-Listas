@@ -59,7 +59,7 @@ def consumir(nombre_busca,coincidencia):
             p= jaro.jaro_metric(nombre_busca,nombre)
             if p>=0.77 :
                 valFbi='X'
-                diccFbi = {'list':'Fbi','name':datos[1],'detalle':datos[2],'link_info':datos[3],'nacionalidad':datos[4],'link_picture':datos[5]}
+                diccFbi = {'list':'Fbi','name':datos[1],'detalle':datos[2],'link_info':datos[3],'nacionalidad':datos[4],'link_picture':datos[5],'link_ref':datos[6]}
                 listFbi.append(diccFbi)
     except:
         pass
@@ -113,6 +113,21 @@ def consumirId(id,coincidencia):
             valOnu='X'
             diccOnu = {'list':'Onu','name':datos[1],'tipo_documento':datos[2],'numero_documento':datos[3],'description':datos[4],'pais':datos[5],'fecha_nacimiento':datos[6]}
             listOnu.append(diccOnu)
+
+    url =dato.URLFBI
+    try:
+        data = requests.get(url)
+        if data.status_code == 200:
+            dataFbi= data.json()
+        for datos in dataFbi:
+            nombre=str(datos[1])
+            p= jaro.jaro_metric(nombre_busca,nombre)
+            if p>=0.77 :
+                valFbi='X'
+                diccFbi = {'list':'Fbi','name':datos[1],'detalle':datos[2],'link_info':datos[3],'nacionalidad':datos[4],'link_picture':datos[5],'link_ref':datos[6]}
+                listFbi.append(diccFbi)
+    except:
+        pass
 
     #Generador de id de consulta
     rand = random.choice(string.ascii_letters)
