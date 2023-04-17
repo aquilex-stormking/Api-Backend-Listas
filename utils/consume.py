@@ -122,7 +122,7 @@ def consumirId(id,coincidencia):
         for datos in dataFbi:
             nombre=str(datos[1])
             p= jaro.jaro_metric(nombre_busca,nombre)
-            if p>=0.77 :
+            if p>=coincidencia :
                 valFbi='X'
                 diccFbi = {'list':'Fbi','name':datos[1],'detalle':datos[2],'link_info':datos[3],'nacionalidad':datos[4],'link_picture':datos[5],'link_ref':datos[6]}
                 listFbi.append(diccFbi)
@@ -207,6 +207,29 @@ def consumir2(lista:list,name:str):
     lista ={'FirstName':name,'ListOfac':'','ListOnu':'','ListFbi':'','FindDate':today,'Consulta':rand}
     
     return lista
+
+def leerlistaperson():
+    datosperson = pd.read_pickle("dummy.pkl")
+
+    lista=[]
+    lista = datosperson.to_numpy().tolist()
+    return lista 
+
+def buscarlistaperson(nombre_busca,coincidencia):
+    coincidencia = coincidencia/100
+    datosperson = pd.read_pickle("dummy.pkl")
+    lista=[]
+    lista = datosperson.to_numpy().tolist()
+    listfind = []
+    for datos in lista:
+        nombre=str(datos[0])
+        print(nombre)
+        print(nombre_busca)
+        p= jaro.jaro_metric(nombre_busca,nombre)
+        if p>=coincidencia :
+            valFind='X'
+            diccFind = {'nombre_completo':datos[0],'identificacion':datos[1],'tipo_identificacion':datos[2],'direccion':datos[3],'ciudad':datos[4],'pais':datos[5],'link_photo':datos[6]}
+            listfind.append(diccFind)
     
-    
+    return listfind
 

@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
 from fastapi.responses import FileResponse, JSONResponse
 from typing import List
-from utils import connection,consume,procesar_archivo,sendmail
+from utils import connection,consume,procesar_archivo,sendmail, listaperson
 from utils.config import Settings, get_settings
 from models import schema
 from models import model
@@ -15,6 +15,8 @@ from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from os import getcwd, mkdir, path, rename
 import shutil
+import pandas as pd
+from PIL import Image
 
 #algorimo 
 ALGORITHM="HS256"
@@ -23,6 +25,7 @@ SECRET = "761c78b692385bd23194ea3848b266589f4c4f16e245b0c7a977c29741bee075"
 
 app = FastAPI()
 
+listaperson.crearlista()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -166,6 +169,8 @@ async def GetAll1(db: Session = Depends(connection.get_db), db1: Session =Depend
     lists = query.all()
     return lists
 
+
+
 # POST
 #Crea usuarios
 @app.post("/User", response_model=schema.UserFound)
@@ -303,6 +308,36 @@ async def uploadfile(file:UploadFile =File(...),  db1: Session =Depends(auth_use
         os.rename('files/'+file.filename,'files/'+settings.NAME_ARCHIVO_CARGUE)
         procesar_archivo.comprobar(settings.NAME_ARCHIVO_CARGUE)
     return "success"
+
+#GET
+#Obtiene lista individual de personas añadidas
+@app.get("/Userban")
+async def uploadfile(db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    lista= consume.leerlistaperson()
+    return lista
+
+#POST
+#Carga usuario individual 
+@app.post("/Userban/{nombre}/{identificacion}/{tipo_identificacion}/{direccion}/{ciudad}/{pais}")
+async def uploadfile(nombre:str, identificacion:str, tipo_identificacion:str, direccion:str,ciudad:str,pais:str,file:UploadFile =File(...),db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    link_photo = "/photos/"+ file.filename
+    with open(getcwd()+"/photos/"+ file.filename, "wb") as myfile:
+        content = await file.read()
+        myfile.write(content)
+        myfile.close()
+    
+    listaperson.añadirperson(nombre,identificacion,tipo_identificacion,direccion,ciudad,pais,link_photo)
+    return True
+
+#POST
+#Carga usuario individual 
+@app.post("/Userban/{nombre_busca}/{coincidencia}")
+async def uploadfile(nombre_busca:str, coincidencia:int,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    lista =consume.buscarlistaperson(nombre_busca,coincidencia)
+    ruta_imagen = getcwd()+lista[0]['link_photo']
+    imagen = Image.open(ruta_imagen)
+    imagen.show()
+    return lista
 
 #DELETE
 #Elimina lista

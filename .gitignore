@@ -1,3 +1,5 @@
 *.xlsx
 files/**
 files2/**
+photos/**
+*.pkl
