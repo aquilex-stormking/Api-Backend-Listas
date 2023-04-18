@@ -223,8 +223,6 @@ def buscarlistaperson(nombre_busca,coincidencia):
     listfind = []
     for datos in lista:
         nombre=str(datos[0])
-        print(nombre)
-        print(nombre_busca)
         p= jaro.jaro_metric(nombre_busca,nombre)
         if p>=coincidencia :
             valFind='X'
