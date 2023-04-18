@@ -55,7 +55,7 @@ class MatchFound(BaseModel):
     observacion: str
     fecha: date
     resultado: str
-    usuario: int
+    usuario: str
     consulta : str
 
     class Config:
@@ -65,7 +65,7 @@ class MatchFoundCreate(BaseModel):
     observacion: str
     fecha: date
     resultado: str
-    usuario: int
+    usuario: str
     consulta: str
 
     class Config:
