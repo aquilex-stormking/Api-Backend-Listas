@@ -29,11 +29,11 @@ class Match(Base):
     __tablename__ = 'match'
     
     id = Column(Integer, primary_key=True)
-    listas_id = Column(Integer)
     observacion= Column(String(100))
     resultado= Column(String(50))
     fecha= Column(Date)
     usuario=Column(String(50))
+    consulta = Column(String(100))
     
 
 
