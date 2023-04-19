@@ -199,7 +199,7 @@ async def Post(userFound: schema.UserFoundCreate, db: Session = Depends(connecti
 async def Post(matchFound: schema.MatchFoundCreate, db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
     
     
-    new_list2 = model.Match( counsulta = matchFound.consulta
+    new_list2 = model.Match( consulta = matchFound.consulta
                             ,observacion = matchFound.observacion
                             ,resultado = matchFound.resultado
                             ,fecha = matchFound.fecha
