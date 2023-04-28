@@ -15,11 +15,11 @@ def get_db(settings: Settings = Depends(get_settings)):
     engine = create_engine(f'postgresql://{settings.DB_UID}:{settings.DB_PWD}@{settings.DB_SERVER}:{settings.DB_PORT}/{settings.DB_NAME}')
     
     # Create Session
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    session_local = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
     try:
-        db = SessionLocal()
+        db = session_local()
         yield db
     finally:
         db.close()

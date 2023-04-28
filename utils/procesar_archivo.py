@@ -4,8 +4,10 @@ import jaro
 from utils import consume
 
 
-url="./files/"
-url2="./files2/"
+url ="./files/"
+url2 ="./files2/"
+url3 = './files/dummy.pkl'
+url4 = "./files2/dummy.pkl"
 
 def comprobar2(name:str):
     book= openpyxl.load_workbook(url2+name, data_only=True)
@@ -20,25 +22,26 @@ def comprobar2(name:str):
             lista_cargue.append(empleado)
     dcargue= pd.DataFrame(lista_cargue, columns=['first_name'])
     #almacenar datos en la base de datos sql
-    dcargue.to_pickle("./files2/dummy.pkl")
-    datos = pd.read_pickle("./files2/dummy.pkl") 
+    dcargue.to_pickle(url4)
+    datos = pd.read_pickle(url4) 
     lista = datos.to_numpy().tolist()
-    lista1 = consume.consumir2(lista,name)
+    lista1 = consume.consumir_2(lista,name)
     return lista1
 
 
-def buscar2(name:str):
+def buscar2(name:str,coincidencia:int):
+    coincidencia = coincidencia/100
     try:
-        file = open('./files/dummy.pkl')
-        file.close()    
-        datos = pd.read_pickle("./files/dummy.pkl") 
+        files = open(url3)
+        files.close()    
+        datos = pd.read_pickle(url3) 
         lista = datos.to_numpy().tolist()
         name = name.upper()
         val=''
         for datos in lista :
-            datos=str(datos)
+            datos = str(datos)
             p= jaro.jaro_metric(name,datos)
-            if p>=0.88 :
+            if p >= coincidencia :
                 val='x'
     
     except FileNotFoundError:
@@ -58,11 +61,11 @@ def comprobar(name:str):
         lista_cargue.append(empleado)
     dcargue= pd.DataFrame(lista_cargue, columns=['first_name'])
     #almacenar datos en la base de datos sql
-    dcargue.to_pickle("./files/dummy.pkl")
+    dcargue.to_pickle(url3)
 
 #
 def buscar(name:str):
-    datos = pd.read_pickle("./files/dummy.pkl") 
+    datos = pd.read_pickle(url3) 
     lista1=[]
     lista = datos.to_numpy().tolist()
     name = name.upper()

@@ -5,19 +5,28 @@ from datetime import date
 from .procesar_archivo import buscar2
 import random,string
 import pandas as pd
-import app
 from .config import get_settings
+from fpdf import FPDF
+import random
+import string
+import hashlib
 
 dato=get_settings()
 
+def generar_password(longitud):
+    caracteres = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(random.choices(caracteres, k=longitud))
+    password_hash = hashlib.sha256(password.encode()).hexdigest()
+    return password_hash
+
 def consumir(nombre_busca,coincidencia):
     coincidencia = coincidencia/100
-    listOfac = [] 
-    listOnu = []
-    listFbi = []
-    valOfac = ' '
-    valOnu = ' '
-    valFbi = ' '
+    list_ofac = [] 
+    list_onu = []
+    list_fbi = []
+    val_ofac = ' '
+    val_onu = ' '
+    val_fbi = ' '
     nombre_busca = nombre_busca.upper()
     nombre_busca = nombre_busca.replace(" ", "")
 
@@ -25,109 +34,105 @@ def consumir(nombre_busca,coincidencia):
     url = dato.URLOFAC
     data = requests.get(url)
     if data.status_code == 200:
-        dataOfac = data.json()
-    for datos in dataOfac :
+        data_ofac = data.json()
+    for datos in data_ofac :
         nombre = str(datos[1])
         p = jaro.jaro_metric(nombre_busca,nombre)
         if p >= coincidencia :
-            valOfac = 'X'
-            diccOnu = {'list':'Ofac','name': datos[1] ,'tipoId':datos[2],'identificacion':datos[3],'direccion':datos[4],'pais':datos[5],'ciudad':datos[6]}
-            listOfac.append(diccOnu)
+            val_ofac = 'X'
+            dicc_onu = {'List':'Ofac','Name': datos[1] ,'tipoId':datos[2],'identificacion':datos[3],'direccion':datos[4],'pais':datos[5],'ciudad':datos[6]}
+            list_ofac.append(dicc_onu)
             
             
     #Onu
     url =dato.URLONU
     data = requests.get(url)
     if data.status_code == 200:
-        dataOnu= data.json()
-    for datos in dataOnu:
+        data_onu= data.json()
+    for datos in data_onu:
         nombre=str(datos[1])
         p= jaro.jaro_metric(nombre_busca,nombre)
         if p>=coincidencia :
-            valOnu='X'
-            diccOnu = {'list':'Onu','name':datos[1],'tipo_documento':datos[2],'numero_documento':datos[3],'description':datos[4],'pais':datos[5],'fecha_nacimiento':datos[6]}
-            listOnu.append(diccOnu)
+            val_onu='X'
+            dicc_onu = {'List':'Onu','Name':datos[1],'Tipo_documento':datos[2],'Numero_documento':datos[3],'Description':datos[4],'Pais':datos[5],'Fecha_nacimiento':datos[6]}
+            list_onu.append(dicc_onu)
 
     
     url =dato.URLFBI
     try:
         data = requests.get(url)
         if data.status_code == 200:
-            dataFbi= data.json()
-        for datos in dataFbi:
+            data_fbi= data.json()
+        for datos in data_fbi:
             nombre=str(datos[1])
             p= jaro.jaro_metric(nombre_busca,nombre)
             if p>=0.77 :
-                valFbi='X'
-                diccFbi = {'list':'Fbi','name':datos[1],'detalle':datos[2],'link_info':datos[3],'nacionalidad':datos[4],'link_picture':datos[5],'link_ref':datos[6]}
-                listFbi.append(diccFbi)
+                val_fbi='X'
+                dicc_fbi = {'List':'Fbi','name':datos[1],'Detalle':datos[2],'Link_info':datos[3],'Nacionalidad':datos[4],'Link_picture':datos[5],'Link_ref':datos[6]}
+                list_fbi.append(dicc_fbi)
     except:
-        pass
+        raise Exception
 
 
     #Generador de id de consulta
-    rand = random.choice(string.ascii_letters)
-    rand1 = random.choice(string.ascii_letters)
-    rand2 = random.randint(1, 20) * 5
-    rand = rand1+str(rand2)+rand
-    today = str(date.today())
-    lista_busquedad = listOnu + listOfac + listFbi
+    
+    today = generar_password(8)
+    lista_busquedad = list_onu + list_ofac + list_fbi
 
-    lista ={'FirstName':nombre_busca,'ListOfac':valOfac,'ListOnu':valOnu,'ListFbi':valFbi,'FindDate':today,'Consulta':rand,'list_find':lista_busquedad}
+    lista ={'FirstName':nombre_busca,'ListOfac':val_ofac,'ListOnu':val_onu,'ListFbi':val_fbi,'FindDate':today,'Consulta':rand,'list_find':lista_busquedad}
     
     return lista
 
-def consumirId(id,coincidencia):
+def consumir_id(id,coincidencia):
     coincidencia = coincidencia/100
-    listOfac = [] 
-    listOnu = []
-    listFbi = []
-    valOfac = ' '
-    valOnu = ' '
-    valFbi = ' '
-    id = id
+    list_ofac = [] 
+    list_onu = []
+    list_fbi = []
+    val_ofac = ' '
+    val_onu = ' '
+    val_fbi = ' '
 
     #Ofac
     url = dato.URLOFAC
     data = requests.get(url)
     if data.status_code == 200:
-        dataOfac = data.json()
-    for datos in dataOfac :
+        data_ofac = data.json()
+    for datos in data_ofac :
         nombre = str(datos[3])
         p = jaro.jaro_metric(id,nombre)
         if p >= coincidencia :
-            valOfac = 'X'
-            diccOnu = {'list':'Ofac','name': datos[1] ,'tipoId':datos[2],'identificacion':datos[3],'direccion':datos[4],'pais':datos[5],'ciudad':datos[6]}
-            listOfac.append(diccOnu)
+            val_ofac = 'X'
+            dicc_onu = {'list':'Ofac','name': datos[1] ,'tipoId':datos[2],'identificacion':datos[3],'direccion':datos[4],'pais':datos[5],'ciudad':datos[6]}
+            list_ofac.append(dicc_onu)
             
             
     #Onu
     url =dato.URLONU
     data = requests.get(url)
     if data.status_code == 200:
-        dataOnu= data.json()
-    for datos in dataOnu:
+        data_onu= data.json()
+    for datos in data_onu:
         nombre=str(datos[3])
         p= jaro.jaro_metric(id,nombre)
         if p>=coincidencia :
-            valOnu='X'
-            diccOnu = {'list':'Onu','name':datos[1],'tipo_documento':datos[2],'numero_documento':datos[3],'description':datos[4],'pais':datos[5],'fecha_nacimiento':datos[6]}
-            listOnu.append(diccOnu)
+            val_onu='X'
+            dicc_onu = {'list':'Onu','name':datos[1],'tipo_documento':datos[2],'numero_documento':datos[3],'description':datos[4],'pais':datos[5],'fecha_nacimiento':datos[6]}
+            list_onu.append(dicc_onu)
 
     url =dato.URLFBI
     try:
         data = requests.get(url)
         if data.status_code == 200:
-            dataFbi= data.json()
-        for datos in dataFbi:
+            data_fbi= data.json()
+        for datos in data_fbi:
             nombre=str(datos[1])
-            p= jaro.jaro_metric(nombre_busca,nombre)
+            p= jaro.jaro_metric(id,nombre)
             if p>=coincidencia :
-                valFbi='X'
-                diccFbi = {'list':'Fbi','name':datos[1],'detalle':datos[2],'link_info':datos[3],'nacionalidad':datos[4],'link_picture':datos[5],'link_ref':datos[6]}
-                listFbi.append(diccFbi)
+                val_fbi='X'
+                dicc_fbi = {'list':'Fbi','name':datos[1],'detalle':datos[2],'link_info':datos[3],'nacionalidad':datos[4],'link_picture':datos[5],'link_ref':datos[6]}
+                list_fbi.append(dicc_fbi)
     except:
-        pass
+        raise Exception
 
     #Generador de id de consulta
     rand = random.choice(string.ascii_letters)
@@ -135,64 +140,93 @@ def consumirId(id,coincidencia):
     rand2 = random.randint(1, 20) * 5
     rand = rand1+str(rand2)+rand
     today = str(date.today())
-    lista_busquedad = listOnu + listOfac + listFbi
+    lista_busquedad = list_onu + list_ofac + list_fbi
 
-    lista ={'FirstName':id,'ListOfac':valOfac,'ListOnu':valOnu,'ListFbi':valFbi,'FindDate':today,'Consulta':rand,'list_find':lista_busquedad}
+    lista ={'FirstName':id,'ListOfac':val_ofac,'ListOnu':val_onu,'ListFbi':val_fbi,'FindDate':today,'Consulta':rand,'list_find':lista_busquedad}
     
     return lista
 
-def consumir2(lista:list,name:str):
+def consumir_2(lista:list,name:str):
 
     lista1 = {'Nombre':[],'ListaOnu':[],'ListaOfac':[],'ListaFBI':[],'ListaCargue':[]}
     writer=pd.ExcelWriter(dato.NAME_ARCHIVO_REPORTE)
     for nombre_busca in lista:
         if nombre_busca[0] is not None:
 
-            valOfac=' '
-            valOnu=' '
-            valFbi=' '
+            val_ofac=' '
+            val_onu=' '
+            val_fbi=' '
             nombre_busca=nombre_busca[0].upper()
-            valCargue=buscar2(nombre_busca)
+            val_cargue=buscar2(nombre_busca,90)
             
             #Ofac
             url =dato.URLOFAC
             data = requests.get(url)
             if data.status_code == 200:
-                dataOfac= data.json()
-            for datos in dataOfac :
+                data_ofac= data.json()
+            for datos in data_ofac :
                 datos=str(datos)
                 p= jaro.jaro_metric(nombre_busca,datos)
-                if p>=0.77 :
-                    valOfac='X'
+                if p>= 0.9 :
+                    val_ofac='X'
             #Onu
             url =dato.URLONU
             data = requests.get(url)
             if data.status_code == 200:
-                dataOnu= data.json()
-            for datos in dataOnu:
+                data_onu= data.json()
+            for datos in data_onu:
                 datos=str(datos)
                 p= jaro.jaro_metric(nombre_busca,datos)
-                if p>=0.77 :
-                    valOnu='X'
+                if p>=0.9 :
+                    val_onu='X'
             
             url =dato.URLFBI
             data = requests.get(url)
             if data.status_code == 200:
-                dataFbi= data.json()
-            for datos in dataFbi:
+                data_fbi= data.json()
+            for datos in data_fbi:
                 datos=str(datos)
                 p= jaro.jaro_metric(nombre_busca,datos)
-                if p>=0.77 :
-                    valOnu='X'
+                if p>=0.9 :
+                    val_onu='X'
 
             #añadir a lista
             lista1['Nombre'].append(nombre_busca)
-            lista1['ListaOfac'].append(valOfac)
-            lista1['ListaOnu'].append(valOnu)
-            lista1['ListaFBI'].append(valFbi)
-            lista1['ListaCargue'].append(valCargue)
+            lista1['ListaOfac'].append(val_ofac)
+            lista1['ListaOnu'].append(val_onu)
+            lista1['ListaFBI'].append(val_fbi)
+            lista1['ListaCargue'].append(val_cargue)
     
     df1=pd.DataFrame(lista1, columns=['Nombre','ListaOfac','ListaOnu','ListaFBI','ListaCargue'])
+    
+    pdf=FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial",size=12)
+    pdf.cell(0, 10, "Mi Reporte LPR", align="C")
+    pdf.ln(20)
+    pdf.image("7.jpg", x=80, y=30, w=50, h=50)
+    pdf.ln(60)
+
+    # Cabecera de la tabla
+    pdf.cell(30)
+    pdf.cell(30,10,"Nombre", border=1)
+    pdf.cell(30,10,"Lista Ofac", border=1,align="center")
+    pdf.cell(30,10,"Lista Onu", border=1,align="center")
+    pdf.cell(30,10,"Lista FBI", border=1,align="center")
+    pdf.cell(30,10,"Lista Cargue", border=1,align="center")
+    pdf.ln()
+
+    # Agregar filas
+    for fila in df1.values:
+        pdf.cell(30)
+        for valor in fila:
+            pdf.cell(30,10,str(valor), border=1, align= "center")
+        pdf.ln()
+
+    # Guardar archivo
+    pdf.output("tabla.pdf")
+    
+    
     df1.to_excel(writer,'Reporte',index=False)
     writer.save()
     
@@ -208,26 +242,5 @@ def consumir2(lista:list,name:str):
     
     return lista
 
-def leerlistaperson():
-    datosperson = pd.read_pickle("dummy.pkl")
 
-    lista=[]
-    lista = datosperson.to_numpy().tolist()
-    return lista 
-
-def buscarlistaperson(nombre_busca,coincidencia):
-    coincidencia = coincidencia/100
-    datosperson = pd.read_pickle("dummy.pkl")
-    lista=[]
-    lista = datosperson.to_numpy().tolist()
-    listfind = []
-    for datos in lista:
-        nombre=str(datos[0])
-        p= jaro.jaro_metric(nombre_busca,nombre)
-        if p>=coincidencia :
-            valFind='X'
-            diccFind = {'nombre_completo':datos[0],'identificacion':datos[1],'tipo_identificacion':datos[2],'direccion':datos[3],'ciudad':datos[4],'pais':datos[5],'link_photo':datos[6]}
-            listfind.append(diccFind)
-    
-    return listfind
 

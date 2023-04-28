@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
 from fastapi.responses import FileResponse, JSONResponse
 from typing import List
-from utils import connection,consume,procesar_archivo,sendmail, listaperson
+from utils import connection, consume ,procesar_archivo,sendmail, listaperson
 from utils.config import Settings, get_settings
 from models import schema
 from models import model
@@ -69,15 +69,14 @@ def search_user_db(username:str, lists: list):
 def search_password_db(lists:list,pos:str, passw:str):
     
     for password in lists:   
-        if password.id == pos: 
-            if password.password ==passw:
-                return passw
+        if password.id == pos and password.password ==passw : 
+            return passw
 
 
 #GET
 #consulta en las listas y devuelve lista
 @app.get("/Consume/{nombre_busca}/{users}/{coincidencia}")
-async def Consume(nombre_busca:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+async def consume(nombre_busca:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
 
     busqueda=consume.consumir(nombre_busca,coincidencia) 
     
@@ -97,17 +96,17 @@ async def Consume(nombre_busca:str,users:str,coincidencia:int,db: Session = Depe
 #GET
 #consulta en las listas y devuelve lista
 @app.get("/Consumes/{id}/{users}/{coincidencia}")
-async def Consume(id:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+async def consume(id:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
 
-    busqueda=consume.consumirId(id,coincidencia) 
+    busqueda=consume.consumir_id(id,coincidencia) 
     
-    new_list = model.Listas(firstname = busqueda['FirstName']
-                            , listofac = busqueda['ListOfac']
-                            , listonu = busqueda['ListOnu']
-                            , listfbi = busqueda['ListFbi']
-                            , finddate = busqueda['FindDate']
-                            , consulta = busqueda['Consulta']
-                            , user = users
+    new_list = model.Listas(Firstname = busqueda['FirstName']
+                            , Listofac = busqueda['ListOfac']
+                            , Listonu = busqueda['ListOnu']
+                            , Listfbi = busqueda['ListFbi']
+                            , Finddate = busqueda['FindDate']
+                            , Consulta = busqueda['Consulta']
+                            , User = users
                             )
     db.add(new_list)
     db.commit()
@@ -118,7 +117,7 @@ async def Consume(id:str,users:str,coincidencia:int,db: Session = Depends(connec
 #GET
 #Obtiene todos las busquedas
 @app.get("/Busquedas", response_model=List[schema.PersonFound])
-async def GetAll1(db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+async def get_all_busquedas(db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
     query = db.query(model.Listas)
     query = query.order_by(desc(model.Listas.finddate))
     lists = query.all()
@@ -126,21 +125,21 @@ async def GetAll1(db: Session = Depends(connection.get_db), db1: Session =Depend
 #GET
 #Obtiene todos las busquedas por usuario
 @app.get("/Busqueda/{User}")
-async def GetSingle2(User:str, db: Session = Depends(connection.get_db),db1: Session =Depends(auth_user)):
+async def get_single_2(user:str, db: Session = Depends(connection.get_db),db1: Session =Depends(auth_user)):
     lista= []
     # get the patient with the given Patient ID
-    query = db.query(model.Listas).filter(model.Listas.user == User).all()
+    query = db.query(model.Listas).filter(model.Listas.user == user).all()
     lista = query
 
     if not lista:
-        raise HTTPException(status_code=404, detail=f"User{User} not found")
+        raise HTTPException(status_code=404, detail=f"User{user} not found")
 
     return lista
 
 #GET
 #Obtiene todos los usuarios
 @app.get("/User", response_model=List[schema.UserFound])
-async def GetAll(db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+async def get_all(db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
     query = db.query(model.User)
     lists = query.all()
     return lists
@@ -148,7 +147,7 @@ async def GetAll(db: Session = Depends(connection.get_db), db1: Session =Depends
 #GET
 #Obtiene el usuario por id
 @app.get("/User/{id}")
-async def GetSingle(id: int, db: Session = Depends(connection.get_db),db1: Session =Depends(auth_user)):
+async def get_single(id: int, db: Session = Depends(connection.get_db),db1: Session =Depends(auth_user)):
 
     ids =id
     
@@ -163,7 +162,7 @@ async def GetSingle(id: int, db: Session = Depends(connection.get_db),db1: Sessi
 #GET
 #Obtiene todos los matchs
 @app.get("/Matchs", response_model=List[schema.MatchFound])
-async def GetAll1(db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+async def get_all_1(db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
     query = db.query(model.Match)
     query = query.order_by(desc(model.Match.fecha))
     lists = query.all()
@@ -174,17 +173,17 @@ async def GetAll1(db: Session = Depends(connection.get_db), db1: Session =Depend
 # POST
 #Crea usuarios
 @app.post("/User", response_model=schema.UserFound)
-async def Post(userFound: schema.UserFoundCreate, db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+async def post(user_found: schema.UserFoundCreate, db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
     
     myctx = CryptContext(schemes=[dato.ENCRYPT])
-    userFound.password =myctx.hash(userFound.password)
+    user_found.password =myctx.hash(user_found.password)
     
-    new_list2 = model.User(  firstname = userFound.firstname
-                            ,password = userFound.password
-                            ,email= userFound.email
-                            ,createdate = userFound.createdate
-                            ,state=userFound.state
-                            ,rol = userFound.rol
+    new_list2 = model.User(  firstname = user_found.firstname
+                            ,password = user_found.password
+                            ,email= user_found.email
+                            ,createdate = user_found.createdate
+                            ,state = user_found.state
+                            ,rol = user_found.rol
                             )
     db.add(new_list2)
     db.commit()    
@@ -196,14 +195,14 @@ async def Post(userFound: schema.UserFoundCreate, db: Session = Depends(connecti
 # POST
 #Crea usuarios
 @app.post("/Match", response_model=schema.MatchFound)
-async def Post(matchFound: schema.MatchFoundCreate, db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+async def post(match_found: schema.MatchFoundCreate, db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
     
     
-    new_list2 = model.Match( consulta = matchFound.consulta
-                            ,observacion = matchFound.observacion
-                            ,resultado = matchFound.resultado
-                            ,fecha = matchFound.fecha
-                            ,usuario = matchFound.usuario
+    new_list2 = model.Match( consulta = match_found.consulta
+                            ,observacion = match_found.observacion
+                            ,resultado = match_found.resultado
+                            ,fecha = match_found.fecha
+                            ,usuario = match_found.usuario
                             )
     db.add(new_list2)
     db.commit()    
@@ -215,32 +214,33 @@ async def Post(matchFound: schema.MatchFoundCreate, db: Session = Depends(connec
 # PUT
 #Edita a los usuarios
 @app.put("/User/{ID}", response_model=schema.UserFound)
-async def Put(ID: int, listsUpdate:schema.UserFound, db: Session = Depends(connection.get_db),  db1: Session =Depends(auth_user)):
+async def put(id: int, lists_update:schema.UserFound, db: Session = Depends(connection.get_db),  db1: Session =Depends(auth_user)):
     
-    lists = db.get(model.User, ID) 
+    lists = db.get(model.User, id) 
     myctx = CryptContext(schemes=[dato.ENCRYPT])
-    listsUpdate.password =myctx.hash(listsUpdate.password)
+    lists_update.password = myctx.hash(lists_update.password)
     if lists:
-        lists.firstname = listsUpdate.firstname
-        lists.password = listsUpdate.password
-        lists.email = listsUpdate.email
-        lists.state = listsUpdate.state
-        lists.rol=listsUpdate.rol
+        lists.firstname = lists_update.firstname
+        lists.password = lists_update.password
+        lists.email = lists_update.email
+        lists.state = lists_update.state
+        lists.rol = lists_update.rol
         db.commit()
         db.refresh(lists)
 
     if not lists:
-        raise HTTPException(status_code=404, detail=f"lists with ID {ID} not found")
+        raise HTTPException(status_code=404, detail=f"lists with ID {id} not found")
 
     return lists
 
 # PUT
 #Edita a los usuarios
 @app.put("/Userdelete/{ID}", response_model=schema.UserFound)
-async def Put(ID: int, listsUpdate:schema.UserFound, db: Session = Depends(connection.get_db),  db1: Session =Depends(auth_user)):
+async def put(id: int, db: Session = Depends(connection.get_db),  db1: Session =Depends(auth_user)):
     
-    lists = db.get(model.User, ID) 
+    lists = db.get(model.User, id) 
     if lists:
+
         if lists.state == '1':
             lists.state='0'
         else:
@@ -249,14 +249,14 @@ async def Put(ID: int, listsUpdate:schema.UserFound, db: Session = Depends(conne
         db.refresh(lists)
 
     if not lists:
-        raise HTTPException(status_code=404, detail=f"lists with ID {ID} not found")
+        raise HTTPException(status_code=404, detail=f"lists with ID {id} not found")
 
     return lists    
 
 # DELETE
 #Elimina Usuarios
 @app.delete("/User/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def Delete(id: int,  db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+async def delete(id: int,  db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
     user = db.get(model.User, id)
     if user:
         db.delete(user)
@@ -266,7 +266,7 @@ async def Delete(id: int,  db: Session = Depends(connection.get_db), db1: Sessio
 #logea al usuario
 @app.post("/login")
 async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depends(connection.get_db)):
-    prueba = await GetAll(db)    
+    prueba = await get_all(db)    
 
     user_db = search_user_db(form.username,prueba)
     
@@ -312,8 +312,8 @@ async def uploadfile(file:UploadFile =File(...),  db1: Session =Depends(auth_use
 #GET
 #Obtiene lista individual de personas añadidas
 @app.get("/Userban")
-async def uploadfile(db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
-    lista= consume.leerlistaperson()
+async def get_person(db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    lista = listaperson.leerlistaperson()
     return lista
 
 #POST
@@ -326,14 +326,14 @@ async def uploadfile(nombre:str, identificacion:str, tipo_identificacion:str, di
         myfile.write(content)
         myfile.close()
     
-    listaperson.añadirperson(nombre,identificacion,tipo_identificacion,direccion,ciudad,pais,link_photo)
+    listaperson.add_person(nombre,identificacion,tipo_identificacion,direccion,ciudad,pais,link_photo)
     return True
 
 #POST
 #Carga usuario individual 
 @app.post("/Userban/{nombre_busca}/{coincidencia}")
-async def uploadfile(nombre_busca:str, coincidencia:int,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
-    lista =consume.buscarlistaperson(nombre_busca,coincidencia)
+async def find_person(nombre_busca:str, coincidencia:int,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    lista = listaperson.buscarlistaperson(nombre_busca,coincidencia)
     ruta_imagen = getcwd()+lista[0]['link_photo']
     imagen = Image.open(ruta_imagen)
     imagen.show()
@@ -350,9 +350,9 @@ async def delete_file(folder_name:str,  db1: Session =Depends(auth_user)):
 
 #GET
 #Busca en lista personalizada
-@app.get("/findcharge/{name}")
-async def findcharge(name:str,  db1: Session =Depends(auth_user)):
-    comprueba= procesar_archivo.buscar(name)
+@app.get("/findcharge/{name}/{coincidencia}")
+async def findcharge(name:str, coincidencia:int , db1: Session =Depends(auth_user)):
+    comprueba= procesar_archivo.buscar(name, coincidencia)
     return comprueba
 
 #GET

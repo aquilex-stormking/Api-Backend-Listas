@@ -1,0 +1,6 @@
+projectKey=listas-backend-2
+serverUrl=http://localhost:9000
+serverVersion=10.0.0.68432
+dashboardUrl=http://localhost:9000/dashboard?id=listas-backend-2
+ceTaskId=AYeexOPGkN9BBCeFWEwl
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AYeexOPGkN9BBCeFWEwl
