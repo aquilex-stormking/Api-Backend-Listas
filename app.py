@@ -78,7 +78,6 @@ def search_password_db(lists:list,pos:str, passw:str):
 @app.get("/Consume/{nombre_busca}/{users}/{coincidencia}")
 async def Consume(nombre_busca:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
     busqueda = con.consumir(nombre_busca,coincidencia) 
-    print(busqueda)
     new_list = model.Listas(firstname = busqueda['FirstName']
                             , listofac = busqueda['ListOfac']
                             , listonu = busqueda['ListOnu']

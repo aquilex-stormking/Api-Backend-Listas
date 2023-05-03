@@ -2,7 +2,7 @@ import requests
 from fastapi import Depends
 import jaro
 from datetime import date
-from .procesar_archivo import buscar2
+from .procesar_archivo import buscar2_id,buscar2_nombre
 import random,string
 import pandas as pd
 from .config import get_settings
@@ -152,13 +152,15 @@ def consumir_2(lista:list,name:str):
     lista1 = {'Nombre':[],'ListaOnu':[],'ListaOfac':[],'ListaFBI':[],'ListaCargue':[]}
     writer=pd.ExcelWriter(dato.NAME_ARCHIVO_REPORTE)
     for nombre_busca in lista:
-        if nombre_busca[0] is not None:
-
-            val_ofac=' '
-            val_onu=' '
-            val_fbi=' '
-            nombre_busca=nombre_busca[0].upper()
-            val_cargue=buscar2(nombre_busca,90)
+            
+            val_ofac= ' '
+            val_onu = ' '
+            val_fbi = ' '
+            id_busca = nombre_busca[0]
+            nombre_busca=nombre_busca[1].upper()
+            val_cargue=buscar2_id(nombre_busca,90)
+            if val_cargue =='':
+                val_cargue=buscar2_nombre(nombre_busca,90)
             
             #Ofac
             url =dato.URLOFAC
@@ -166,20 +168,31 @@ def consumir_2(lista:list,name:str):
             if data.status_code == 200:
                 data_ofac= data.json()
             for datos in data_ofac :
-                datos=str(datos)
-                p= jaro.jaro_metric(nombre_busca,datos)
+                identificacion = str(datos[3])
+                p= jaro.jaro_metric(id_busca,identificacion)
                 if p>= 0.9 :
                     val_ofac='X'
+                if val_ofac == ' ':
+                    nombre = str(datos[1])
+                    p= jaro.jaro_metric(nombre_busca,nombre)
+                    if p>= 0.9 :
+                        val_ofac='X'
+
             #Onu
             url =dato.URLONU
             data = requests.get(url)
             if data.status_code == 200:
                 data_onu= data.json()
             for datos in data_onu:
-                datos=str(datos)
-                p= jaro.jaro_metric(nombre_busca,datos)
-                if p>=0.9 :
+                identificacion = str(datos[3])
+                p= jaro.jaro_metric(id_busca,identificacion)
+                if p>= 0.9 :
                     val_onu='X'
+                if val_onu == ' ':
+                    nombre = str(datos[1])
+                    p= jaro.jaro_metric(nombre_busca,nombre)
+                    if p>= 0.9 :
+                        val_onu='X'
             
             url =dato.URLFBI
             data = requests.get(url)
@@ -203,25 +216,40 @@ def consumir_2(lista:list,name:str):
     pdf=FPDF()
     pdf.add_page()
     pdf.set_font("Arial",size=12)
+    pdf.image("Imagen3.jpg", x=5, y=5, w=50, h=30)
     pdf.cell(0, 10, "Mi Reporte LPR", align="C")
     pdf.ln(20)
-    pdf.image("7.jpg", x=80, y=30, w=50, h=50)
+    pdf.image("7.jpg", x=160, y=5, w=40, h=40)
     pdf.ln(60)
 
     # Cabecera de la tabla
+    r,g,b=52, 152, 219
     pdf.cell(20)
-    pdf.cell(30,10,"Nombre", border=1)
-    pdf.cell(30,10,"Lista Ofac", border=1,align="center")
-    pdf.cell(30,10,"Lista Onu", border=1,align="center")
-    pdf.cell(30,10,"Lista FBI", border=1,align="center")
-    pdf.cell(30,10,"Lista Cargue", border=1,align="center")
+    pdf.set_fill_color(r,g,b)
+    pdf.cell(40,10,"Nombre", border=1, align="C",fill=True)
+    pdf.set_fill_color(r,g,b)
+    pdf.cell(30,10,"Lista Ofac", border=1,align="C",fill=True)
+    pdf.set_fill_color(r,g,b)
+    pdf.cell(30,10,"Lista Onu", border=1,align="C",fill=True)
+    pdf.set_fill_color(r,g,b)
+    pdf.cell(30,10,"Lista FBI", border=1,align="C",fill=True)
+    pdf.set_fill_color(r,g,b)
+    pdf.cell(30,10,"Lista Cargue", border=1,align="C",fill=True)
     pdf.ln()
 
     # Agregar filas
     for fila in df1.values:
         pdf.cell(20)
+        i=0
         for valor in fila:
-            pdf.cell(30,10,str(valor), border=1, align= "center")
+
+            if i ==0:
+                
+                pdf.cell(40,10,str(valor), border=1, align="J")
+            else :
+                
+                pdf.cell(30,10,str(valor), border=1,align="C")
+            i+=1   
         pdf.ln()
 
     # Guardar archivo

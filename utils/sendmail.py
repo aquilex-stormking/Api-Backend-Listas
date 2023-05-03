@@ -23,7 +23,7 @@ def sendmail(email:str):
     # Agregamos el cuerpo del mensaje como objeto MIME de tipo texto
     mensaje.attach(MIMEText(cuerpo, 'plain'))
     # Abrimos el archivo que vamos a adjuntar
-    archivo_adjunto = open(dato.NAME_ARCHIVO_REPORTE, 'rb')
+    archivo_adjunto = open(dato.NAME_ARCHIVO_REPORTE2, 'rb')
     # Creamos un objeto MIME base
     adjunto_mime = MIMEBase('application', 'octet-stream')
     # Y le cargamos el archivo adjunto
@@ -31,7 +31,7 @@ def sendmail(email:str):
     # Codificamos el objeto en BASE64
     encoders.encode_base64(adjunto_mime)
     # Agregamos una cabecera al objeto
-    adjunto_mime.add_header('Content-Disposition', "attachment; filename= %s" % dato.NAME_ARCHIVO_REPORTE)
+    adjunto_mime.add_header('Content-Disposition', "attachment; filename= %s" % dato.NAME_ARCHIVO_REPORTE2)
     # Y finalmente lo agregamos al mensaje
     mensaje.attach(adjunto_mime)
     # Creamos la conexión con el servidor
