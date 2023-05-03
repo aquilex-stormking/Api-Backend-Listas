@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
 from fastapi.responses import FileResponse, JSONResponse
 from typing import List
-from utils import connection, consume ,procesar_archivo,sendmail, listaperson
+from utils import connection,consume as con,procesar_archivo,sendmail, listaperson
 from utils.config import Settings, get_settings
 from models import schema
 from models import model
@@ -76,10 +76,9 @@ def search_password_db(lists:list,pos:str, passw:str):
 #GET
 #consulta en las listas y devuelve lista
 @app.get("/Consume/{nombre_busca}/{users}/{coincidencia}")
-async def consume(nombre_busca:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
-
-    busqueda=consume.consumir(nombre_busca,coincidencia) 
-    
+async def Consume(nombre_busca:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+    busqueda = con.consumir(nombre_busca,coincidencia) 
+    print(busqueda)
     new_list = model.Listas(firstname = busqueda['FirstName']
                             , listofac = busqueda['ListOfac']
                             , listonu = busqueda['ListOnu']
@@ -90,7 +89,7 @@ async def consume(nombre_busca:str,users:str,coincidencia:int,db: Session = Depe
                             )
     db.add(new_list)
     db.commit()
-    db.refresh(new_list) 
+    db.refresh(new_list)
     return busqueda
 
 #GET
@@ -98,15 +97,15 @@ async def consume(nombre_busca:str,users:str,coincidencia:int,db: Session = Depe
 @app.get("/Consumes/{id}/{users}/{coincidencia}")
 async def consume(id:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
 
-    busqueda=consume.consumir_id(id,coincidencia) 
+    busqueda=con.consumir_id(id,coincidencia) 
     
-    new_list = model.Listas(Firstname = busqueda['FirstName']
-                            , Listofac = busqueda['ListOfac']
-                            , Listonu = busqueda['ListOnu']
-                            , Listfbi = busqueda['ListFbi']
-                            , Finddate = busqueda['FindDate']
-                            , Consulta = busqueda['Consulta']
-                            , User = users
+    new_list = model.Listas(firstname = busqueda['FirstName']
+                            , listofac = busqueda['ListOfac']
+                            , listonu = busqueda['ListOnu']
+                            , listfbi = busqueda['ListFbi']
+                            , finddate = busqueda['FindDate']
+                            , consulta = busqueda['Consulta']
+                            , user = users
                             )
     db.add(new_list)
     db.commit()
@@ -174,6 +173,28 @@ async def get_all_1(db: Session = Depends(connection.get_db), db1: Session =Depe
 #Crea usuarios
 @app.post("/User", response_model=schema.UserFound)
 async def post(user_found: schema.UserFoundCreate, db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+    
+    myctx = CryptContext(schemes=[dato.ENCRYPT])
+    user_found.password =myctx.hash(user_found.password)
+    
+    new_list2 = model.User(  firstname = user_found.firstname
+                            ,password = user_found.password
+                            ,email= user_found.email
+                            ,createdate = user_found.createdate
+                            ,state = user_found.state
+                            ,rol = user_found.rol
+                            )
+    db.add(new_list2)
+    db.commit()    
+    # Actualiza base de datos
+    db.refresh(new_list2) 
+    # retorna lista
+    return new_list2
+
+# POST
+#Crea usuarios
+@app.post("/User2", response_model=schema.UserFound)
+async def post_2(user_found: schema.UserFoundCreate, db: Session = Depends(connection.get_db)):
     
     myctx = CryptContext(schemes=[dato.ENCRYPT])
     user_found.password =myctx.hash(user_found.password)
@@ -393,3 +414,13 @@ async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: S
         db.refresh(new_list) 
         sendmail.sendmail(email)
         return new_list
+
+#POST
+#Recibe parametros para presentar informe individual 
+@app.post("/Informe/{nombre_busca}/{coincidencia}/{listaofac}/{listaonu}/{listafbi}")
+async def info_person(nombre_busca:str, coincidencia:int,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    lista = listaperson.buscarlistaperson(nombre_busca,coincidencia)
+    ruta_imagen = getcwd()+lista[0]['link_photo']
+    imagen = Image.open(ruta_imagen)
+    imagen.show()
+    return lista

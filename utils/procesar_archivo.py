@@ -12,12 +12,13 @@ url4 = "./files2/dummy.pkl"
 def comprobar2(name:str):
     book= openpyxl.load_workbook(url2+name, data_only=True)
     hoja = book.active
-    celdas = hoja['A2':'A10']
+    celdas = hoja['A2':'A100']
     lista_cargue = []
     for fila in celdas:
         empleado = [celda.value for celda in fila]
         empleado= str(empleado[0])
         empleado = empleado.upper()
+        print(empleado)
         if empleado !='NONE':
             lista_cargue.append(empleado)
     dcargue= pd.DataFrame(lista_cargue, columns=['first_name'])
@@ -39,7 +40,7 @@ def buscar2(name:str,coincidencia:int):
         name = name.upper()
         val=''
         for datos in lista :
-            datos = str(datos)
+            datos = str(datos[0])
             p= jaro.jaro_metric(name,datos)
             if p >= coincidencia :
                 val='x'
@@ -73,7 +74,7 @@ def buscar(name:str):
     for datos in lista :
         datos=str(datos)
         p= jaro.jaro_metric(name,datos)
-        if p>=0.88 :
+        if p>=0.90 :
             val=True
     lista1.append(val)
     return lista1

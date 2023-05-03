@@ -20,6 +20,7 @@ def generar_password(longitud):
     return password_hash
 
 def consumir(nombre_busca,coincidencia):
+    
     coincidencia = coincidencia/100
     list_ofac = [] 
     list_onu = []
@@ -74,13 +75,14 @@ def consumir(nombre_busca,coincidencia):
         raise Exception
 
 
-    #Generador de id de consulta
-    
-    today = generar_password(8)
+    # Generador de id de consulta
+    today = str(date.today())
+    rand = generar_password(4)
+    rand = rand[:5]
     lista_busquedad = list_onu + list_ofac + list_fbi
 
     lista ={'FirstName':nombre_busca,'ListOfac':val_ofac,'ListOnu':val_onu,'ListFbi':val_fbi,'FindDate':today,'Consulta':rand,'list_find':lista_busquedad}
-    
+    # lista = {}
     return lista
 
 def consumir_id(id,coincidencia):
@@ -135,10 +137,9 @@ def consumir_id(id,coincidencia):
         raise Exception
 
     #Generador de id de consulta
-    rand = random.choice(string.ascii_letters)
-    rand1 = random.choice(string.ascii_letters)
-    rand2 = random.randint(1, 20) * 5
-    rand = rand1+str(rand2)+rand
+    
+    rand = generar_password(8)
+    rand = rand[:5]
     today = str(date.today())
     lista_busquedad = list_onu + list_ofac + list_fbi
 
@@ -208,7 +209,7 @@ def consumir_2(lista:list,name:str):
     pdf.ln(60)
 
     # Cabecera de la tabla
-    pdf.cell(30)
+    pdf.cell(20)
     pdf.cell(30,10,"Nombre", border=1)
     pdf.cell(30,10,"Lista Ofac", border=1,align="center")
     pdf.cell(30,10,"Lista Onu", border=1,align="center")
@@ -218,7 +219,7 @@ def consumir_2(lista:list,name:str):
 
     # Agregar filas
     for fila in df1.values:
-        pdf.cell(30)
+        pdf.cell(20)
         for valor in fila:
             pdf.cell(30,10,str(valor), border=1, align= "center")
         pdf.ln()
