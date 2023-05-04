@@ -420,4 +420,4 @@ async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: S
 async def info_person(nombre_busca:str, coincidencia:int,listaofac:str,listaonu:str, listafbi:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
     con.reportepdf(nombre_busca,coincidencia,listaofac,listaonu,listafbi)
     
-    return FileResponse(getcwd()+"/"+settings.NAME_ARCHIVO_REPORTE)
+    return FileResponse(getcwd()+"/"+settings.NAME_ARCHIVO_REPORTE3)

@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     URLFBI:str
     ENCRYPT:str
     NAME_ARCHIVO_REPORTE2:str
+    NAME_ARCHIVO_REPORTE3:str
     class Config:
         env_file = ".env.sample"
 
