@@ -215,14 +215,15 @@ def consumir_2(lista:list,name:str):
     
     pdf=FPDF()
     pdf.add_page()
-    pdf.set_font("Arial",size=12)
-    pdf.image("Imagen3.jpg", x=5, y=5, w=50, h=30)
+    pdf.set_font("Arial",size=18)
+    pdf.image("Imagen3.jpg", x=5, y=5, w=25, h=15)
     pdf.cell(0, 10, "Mi Reporte LPR", align="C")
     pdf.ln(20)
-    pdf.image("7.jpg", x=160, y=5, w=40, h=40)
+    pdf.image("7.jpg", x=180, y=5, w=20, h=20)
     pdf.ln(60)
 
     # Cabecera de la tabla
+    pdf.set_font("Arial",size=12)
     r,g,b=52, 152, 219
     pdf.cell(20)
     pdf.set_fill_color(r,g,b)
@@ -238,6 +239,7 @@ def consumir_2(lista:list,name:str):
     pdf.ln()
 
     # Agregar filas
+    pdf.set_font("Arial",size=8)
     for fila in df1.values:
         pdf.cell(20)
         i=0
@@ -272,4 +274,55 @@ def consumir_2(lista:list,name:str):
     return lista
 
 
+def reportepdf(nombre_busca,coincidencia,listaofac,listaonu,listafbi):
 
+    lista=[]
+    today = str(date.today())
+    lista.append((nombre_busca,listaofac,listaonu,listafbi))
+    df1=pd.DataFrame(lista, columns=['Nombre','ListaOfac','ListaOnu','ListaFBI'])
+    coincidencia = coincidencia
+
+    #pdf
+    pdf=FPDF()
+    pdf.add_page()
+    pdf.set_font("Helvetica",size=24)
+    pdf.image("Imagen3.jpg", x=5, y=5, w=25, h=15)
+    pdf.cell(0, 10, "Mi Reporte LPR", align="C")
+    pdf.ln(20)
+    pdf.image("7.jpg", x=180, y=5, w=20, h=20)
+    pdf.ln(20)
+    pdf.set_font("Times",size=12)
+    r,g,b=52, 152, 219
+    pdf.cell(30)
+    pdf.set_fill_color(r,g,b)
+    pdf.cell(50,10,"Nombre", border=1, align="C",fill=True)
+    pdf.set_fill_color(r,g,b)
+    pdf.cell(30,10,"Lista Ofac", border=1,align="C",fill=True)
+    pdf.set_fill_color(r,g,b)
+    pdf.cell(30,10,"Lista Onu", border=1,align="C",fill=True)
+    pdf.set_fill_color(r,g,b)
+    pdf.cell(30,10,"Lista FBI", border=1,align="C",fill=True)
+    pdf.set_fill_color(r,g,b)
+
+    # Agregar filas
+    pdf.set_font("Times",size=8)
+    pdf.ln(10)       
+    pdf.cell(30)
+    pdf.cell(50,10,str(nombre_busca), border=1, align="J")  
+    pdf.cell(30,10,str(listaofac), border=1,align="C")
+    pdf.cell(30,10,str(listaonu), border=1,align="C")
+    pdf.cell(30,10,str(listafbi), border=1,align="C")  
+    pdf.ln(20)
+
+    pdf.set_font("Times", size=14)
+    pdf.cell(20)
+    pdf.cell(0, 10, "La persona o entidad llamada: "+nombre_busca+" fue consulatada con  "+str(coincidencia)+" % de coincidencia ", align="J")
+    pdf.ln(10)
+    pdf.cell(20)
+    pdf.cell(0, 10, "en la fecha "+today+" en las siguientes listas: Lista Ofac, Lista Onu, Lista FBI.", align="J")
+    pdf.ln(10)
+    # Cabecera de la tabla
+    
+
+    # Guardar archivo
+    pdf.output("tabla2.pdf")

@@ -417,9 +417,7 @@ async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: S
 #POST
 #Recibe parametros para presentar informe individual 
 @app.post("/Informe/{nombre_busca}/{coincidencia}/{listaofac}/{listaonu}/{listafbi}")
-async def info_person(nombre_busca:str, coincidencia:int,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
-    lista = listaperson.buscarlistaperson(nombre_busca,coincidencia)
-    ruta_imagen = getcwd()+lista[0]['link_photo']
-    imagen = Image.open(ruta_imagen)
-    imagen.show()
-    return lista
+async def info_person(nombre_busca:str, coincidencia:int,listaofac:str,listaonu:str, listafbi:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    con.reportepdf(nombre_busca,coincidencia,listaofac,listaonu,listafbi)
+    
+    return FileResponse(getcwd()+"/"+settings.NAME_ARCHIVO_REPORTE)
