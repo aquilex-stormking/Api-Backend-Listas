@@ -97,7 +97,7 @@ def comprobar(name:str):
     dcargue.to_pickle(url3)
 
 #
-def buscar(name:str):
+def buscar(name:str,coincidencia:int):
     datos = pd.read_pickle(url3) 
     lista1=[]
     lista = datos.to_numpy().tolist()
