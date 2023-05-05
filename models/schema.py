@@ -70,3 +70,15 @@ class MatchFoundCreate(BaseModel):
 
     class Config:
         orm_mode = True  
+
+class List_addFound(BaseModel):
+    id: int
+    descripcion: str
+    fecha: date
+    class Config:
+        orm_mode = True 
+class List_addFoundCreate(BaseModel):
+    descripcion: str
+    fecha: date
+    class Config:
+        orm_mode = True  

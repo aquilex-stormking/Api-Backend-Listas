@@ -423,6 +423,16 @@ async def info_person(nombre_busca:str, coincidencia:int,listaofac:str,listaonu:
     
     return FileResponse(getcwd()+"/"+settings.NAME_ARCHIVO_REPORTE3)
 
+
+#POST
+#Recibe parametros para presentar informe individual 
+@app.get("/listas")
+async def info_person(nombre_busca:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    con.reportepdf(nombre_busca,coincidencia,listaofac,listaonu,listafbi)
+    
+    return FileResponse(getcwd()+"/"+settings.NAME_ARCHIVO_REPORTE3)
+
+
 """
 GET METHOD
 Se encarga de hacer consultas en la web medio de una api de busqueda de google
@@ -456,3 +466,4 @@ async def search_engine(search_query:str, language:str = "lang_es", number_of_ar
     elif response.status_code == 403:
         raise HTTPException(status_code=403, detail="Forbidden")
         
+
