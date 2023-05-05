@@ -17,6 +17,7 @@ from os import getcwd, mkdir, path, rename
 import shutil
 import pandas as pd
 from PIL import Image
+import requests
 
 #algorimo 
 ALGORITHM="HS256"
@@ -421,3 +422,35 @@ async def info_person(nombre_busca:str, coincidencia:int,listaofac:str,listaonu:
     con.reportepdf(nombre_busca,coincidencia,listaofac,listaonu,listafbi)
     
     return FileResponse(getcwd()+"/"+settings.NAME_ARCHIVO_REPORTE3)
+
+"""
+GET METHOD
+Se encarga de hacer consultas en la web medio de una api de busqueda de google
+
+INPUT = q={}, lr={}, num={}
+OUTPUT =  {
+       "title": "",
+       "link": "",
+     }
+"""
+@app.get("/Google/")
+async def search_engine(search_query:str, num:int = 5, lr:str = "lang_es"):
+    __keys = { "key": "AIzaSyBoKUC3NFQ36iYZj4_Y-wASaAInvr6XVcc", "cx": "e5a2b555bf5da4fda" }
+    exactTerms:str = "steal"
+
+    url = "https://www.googleapis.com/customsearch/v1"
+    data = {'key': __keys['key'], 'cx': __keys['cx'], 'q': search_query, 'exactTerms': exactTerms, 'lr': lr, 'num': num}
+
+    response = requests.get(url, data)
+    # items = response.json()['items']
+    # filtered_items = [{"title": item["title"], "link": item["link"]} for item in items]
+    print(response.url)
+    if response.status_code == 200:
+        return response.json()
+    elif response.status_code == 404:
+        raise HTTPException(status_code=404, detail="No se ha encontrado el sitio web")
+    elif response.status_code == 500:
+        raise HTTPException(status_code=500, detail="Error interno del servidor")
+    elif response.status_code == 403:
+        raise HTTPException(status_code=403, detail="Forbidden")
+        
