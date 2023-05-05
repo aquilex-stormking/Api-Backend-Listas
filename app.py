@@ -426,11 +426,13 @@ async def info_person(nombre_busca:str, coincidencia:int,listaofac:str,listaonu:
 
 #POST
 #Recibe parametros para presentar informe individual 
-@app.get("/listas")
-async def info_person(nombre_busca:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
-    con.reportepdf(nombre_busca,coincidencia,listaofac,listaonu,listafbi)
+@app.get("/listas", response_model=List[schema.List_addFound])
+async def info_person(nombre_busca:str, db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    query = db.query(model.Listas)
+    query = query.order_by(desc(model.Listas.fecha))
+    lists = query.all()
+    return lists
     
-    return FileResponse(getcwd()+"/"+settings.NAME_ARCHIVO_REPORTE3)
 
 
 """

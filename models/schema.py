@@ -77,6 +77,7 @@ class List_addFound(BaseModel):
     fecha: date
     class Config:
         orm_mode = True 
+        
 class List_addFoundCreate(BaseModel):
     descripcion: str
     fecha: date
