@@ -439,26 +439,28 @@ async def info_person(nombre_busca:str, db: Session = Depends(connection.get_db)
 GET METHOD
 Se encarga de hacer consultas en la web medio de una api de busqueda de google
 
-INPUT = q={}, lr={}, num={}
+INPUT = search_query:str, language:str, number_of_articles:int
 OUTPUT =  {
        "title": "",
        "link": "",
      }
 """
 @app.get("/Google/")
-async def search_engine(search_query:str, num:int = 5, lr:str = "lang_es"):
+async def search_engine(search_query:str, language:str = "lang_es", number_of_articles:int = 5):
     __keys = { "key": "AIzaSyBoKUC3NFQ36iYZj4_Y-wASaAInvr6XVcc", "cx": "e5a2b555bf5da4fda" }
-    exactTerms:str = "steal"
-
+    tems = ['robo', 'estafa', 'asesinato', 'secuestro', 'demanda']
+    
+    formatted_query = "(" + "|".join(tems) + ")" + f" {search_query}"
+    
     url = "https://www.googleapis.com/customsearch/v1"
-    data = {'key': __keys['key'], 'cx': __keys['cx'], 'q': search_query, 'exactTerms': exactTerms, 'lr': lr, 'num': num}
+    data = {'key': __keys['key'], 'cx': __keys['cx'], 'q': formatted_query, 'lr': language, 'num': number_of_articles}
 
     response = requests.get(url, data)
-    # items = response.json()['items']
-    # filtered_items = [{"title": item["title"], "link": item["link"]} for item in items]
-    print(response.url)
+    items = response.json()['items']
+    filtered_items = [{"title": item["title"], "link": item["link"]} for item in items]
+    
     if response.status_code == 200:
-        return response.json()
+        return JSONResponse(content=filtered_items)
     elif response.status_code == 404:
         raise HTTPException(status_code=404, detail="No se ha encontrado el sitio web")
     elif response.status_code == 500:
