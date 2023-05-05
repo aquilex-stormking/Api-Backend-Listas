@@ -444,11 +444,11 @@ OUTPUT =  {
      }
 """
 @app.get("/Google/")
-async def search_engine(search_query:str, language:str = "lang_es", number_of_articles:int = 5):
+async def search_engine(search_query:str, language:str = "lang_es", number_of_articles:int = 5, db:Session = Depends(auth_user)):
     __keys = { "key": "AIzaSyBoKUC3NFQ36iYZj4_Y-wASaAInvr6XVcc", "cx": "e5a2b555bf5da4fda" }
-    tems = ['robo', 'estafa', 'asesinato', 'secuestro', 'demanda']
+    terms = ['robo', 'estafa', 'asesinato', 'secuestro', 'demanda']
     
-    formatted_query = "(" + "|".join(tems) + ")" + f" {search_query}"
+    formatted_query = "(" + "|".join(terms) + ")" + f" {search_query}"
     
     url = "https://www.googleapis.com/customsearch/v1"
     data = {'key': __keys['key'], 'cx': __keys['cx'], 'q': formatted_query, 'lr': language, 'num': number_of_articles}
