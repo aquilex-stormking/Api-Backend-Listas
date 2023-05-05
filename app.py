@@ -421,3 +421,15 @@ async def info_person(nombre_busca:str, coincidencia:int,listaofac:str,listaonu:
     con.reportepdf(nombre_busca,coincidencia,listaofac,listaonu,listafbi)
     
     return FileResponse(getcwd()+"/"+settings.NAME_ARCHIVO_REPORTE3)
+
+
+
+#POST
+#Recibe parametros para presentar informe individual 
+@app.get("/listas")
+async def info_person(nombre_busca:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    con.reportepdf(nombre_busca,coincidencia,listaofac,listaonu,listafbi)
+    
+    return FileResponse(getcwd()+"/"+settings.NAME_ARCHIVO_REPORTE3)
+
+
