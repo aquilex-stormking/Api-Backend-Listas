@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from jose import jwt, JWTError
 from os import getcwd, mkdir, path, rename
 import shutil
@@ -294,18 +294,13 @@ async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depend
     if not user_db:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="El usuario no es correcto")
-
-    
-
     if not crypt.verify(form.password, user_db.password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="La contraseña no es correcta")
-    
     if user_db.state=='0':
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Usuario inactivo")
-
     if user_db is True:
         user_db=form.username
     acess_token = {"sub":form.username,"rol":user_db.rol,  "exp": datetime.utcnow()+timedelta(minutes=ACCESS_TOKEN_DURATION)}
@@ -329,6 +324,29 @@ async def uploadfile(file:UploadFile =File(...),  db1: Session =Depends(auth_use
         os.rename('files/'+file.filename,'files/'+settings.NAME_ARCHIVO_CARGUE)
         procesar_archivo.comprobar(settings.NAME_ARCHIVO_CARGUE)
     return "success"
+
+#POST
+#Caga lista personalizada
+@app.post("/upload2")
+async def uploadfile_2(file:UploadFile =File(...),  db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings),db: Session = Depends(connection.get_db)):
+    
+    with open(getcwd()+"/files/"+ file.filename, "wb") as myfile:
+        content = await file.read()
+        myfile.write(content)
+        myfile.close()
+        today = str(date.today())
+        os.rename('files/'+file.filename,'files/'+file.filename)
+        name = procesar_archivo.comprobar(file.filename)
+
+        new_list2 = model.Listas_add( descripcion = name
+                            ,fecha = today
+                            )
+        db.add(new_list2)
+        db.commit()    
+        # Actualiza base de datos
+        db.refresh(new_list2) 
+    return "success"
+
 
 #GET
 #Obtiene lista individual de personas añadidas
@@ -420,18 +438,18 @@ async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: S
 @app.post("/Informe/{nombre_busca}/{coincidencia}/{listaofac}/{listaonu}/{listafbi}")
 async def info_person(nombre_busca:str, coincidencia:int,listaofac:str,listaonu:str, listafbi:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
     con.reportepdf(nombre_busca,coincidencia,listaofac,listaonu,listafbi)
-    
-    return FileResponse(getcwd()+"/"+settings.NAME_ARCHIVO_REPORTE3)
+    path=getcwd()+"/"+settings.NAME_ARCHIVO_REPORTE3
+    return path
 
 
 #POST
 #Recibe parametros para presentar informe individual 
 @app.get("/listas", response_model=List[schema.List_addFound])
-async def info_person(nombre_busca:str, db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
-    query = db.query(model.Listas)
-    query = query.order_by(desc(model.Listas.fecha))
+async def info_listas( db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    query = db.query(model.Listas_add)
+    query = query.order_by(desc(model.Listas_add.fecha))
     lists = query.all()
-    return lists
+    return lists 
     
 
 
@@ -448,7 +466,7 @@ OUTPUT =  {
 @app.get("/Google/")
 async def search_engine(search_query:str, language:str = "lang_es", number_of_articles:int = 5):
     __keys = { "key": "AIzaSyBoKUC3NFQ36iYZj4_Y-wASaAInvr6XVcc", "cx": "e5a2b555bf5da4fda" }
-    tems = ['robo', 'estafa', 'asesinato', 'secuestro', 'demanda']
+    tems = ['theft', 'captacion', 'ilegal', 'kidnapping', 'lawsuit', 'fraud', 'missing']
     
     formatted_query = "(" + "|".join(tems) + ")" + f" {search_query}"
     

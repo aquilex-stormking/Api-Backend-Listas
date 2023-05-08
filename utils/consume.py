@@ -41,7 +41,7 @@ def consumir(nombre_busca,coincidencia):
         p = jaro.jaro_metric(nombre_busca,nombre)
         if p >= coincidencia :
             val_ofac = 'X'
-            dicc_onu = {'List':'Ofac','Name': datos[1] ,'tipoId':datos[2],'identificacion':datos[3],'direccion':datos[4],'pais':datos[5],'ciudad':datos[6]}
+            dicc_onu = {'List':'Ofac','Name': datos[1] ,'TipoId':datos[2],'Identificacion':datos[3],'Direccion':datos[4],'Pais':datos[5],'Ciudad':datos[6]}
             list_ofac.append(dicc_onu)
             
             
@@ -104,7 +104,7 @@ def consumir_id(id,coincidencia):
         p = jaro.jaro_metric(id,nombre)
         if p >= coincidencia :
             val_ofac = 'X'
-            dicc_onu = {'list':'Ofac','name': datos[1] ,'tipoId':datos[2],'identificacion':datos[3],'direccion':datos[4],'pais':datos[5],'ciudad':datos[6]}
+            dicc_onu = {'List':'Ofac','name': datos[1] ,'TipoId':datos[2],'Identificacion':datos[3],'Direccion':datos[4],'Pais':datos[5],'Ciudad':datos[6]}
             list_ofac.append(dicc_onu)
             
             
@@ -118,7 +118,7 @@ def consumir_id(id,coincidencia):
         p= jaro.jaro_metric(id,nombre)
         if p>=coincidencia :
             val_onu='X'
-            dicc_onu = {'list':'Onu','name':datos[1],'tipo_documento':datos[2],'numero_documento':datos[3],'description':datos[4],'pais':datos[5],'fecha_nacimiento':datos[6]}
+            dicc_onu = {'list':'Onu','Name':datos[1],'Tipo_documento':datos[2],'Numero_documento':datos[3],'Description':datos[4],'Pais':datos[5],'Fecha_nacimiento':datos[6]}
             list_onu.append(dicc_onu)
 
     url =dato.URLFBI
@@ -131,7 +131,7 @@ def consumir_id(id,coincidencia):
             p= jaro.jaro_metric(id,nombre)
             if p>=coincidencia :
                 val_fbi='X'
-                dicc_fbi = {'list':'Fbi','name':datos[1],'detalle':datos[2],'link_info':datos[3],'nacionalidad':datos[4],'link_picture':datos[5],'link_ref':datos[6]}
+                dicc_fbi = {'list':'Fbi','Name':datos[1],'Detalle':datos[2],'Link_info':datos[3],'Nacionalidad':datos[4],'Link_picture':datos[5],'Link_ref':datos[6]}
                 list_fbi.append(dicc_fbi)
     except:
         raise Exception

@@ -2,12 +2,14 @@ import openpyxl
 import pandas as pd
 import jaro
 from utils import consume
+import os
 
 
 url ="./files/"
 url2 ="./files2/"
 url3 = './files/dummy.pkl'
 url4 = "./files2/dummy.pkl"
+ext = ".pkl"
 
 def comprobar2(name:str):
     book= openpyxl.load_workbook(url2+name, data_only=True)
@@ -78,15 +80,31 @@ def buscar2_nombre(name:str,coincidencia:int):
                 val='x'
     
     except FileNotFoundError:
-        val=''  
+        val=''
     return val
 
+# #Recibe el nombre del archivo para archivarlo en un pickle
+# def comprobar(name:str):
+#     book= openpyxl.load_workbook(url+name, data_only=True)
+#     hoja = book.active
+#     celdas = hoja['A2':'A1000']
+#     lista_cargue = []
+#     for fila in celdas:
+#         empleado = [celda.value for celda in fila]
+#         empleado= str(empleado[0])
+#         empleado = empleado.upper()
+#         lista_cargue.append(empleado)
+#     dcargue= pd.DataFrame(lista_cargue, columns=['first_name'])
+#     #almacenar datos en la base de datos sql
+#     dcargue.to_pickle(url3)
 
+#Recibe el nombre del archivo para archivarlo en un pickle
 def comprobar(name:str):
     book= openpyxl.load_workbook(url+name, data_only=True)
     hoja = book.active
     celdas = hoja['A2':'A1000']
     lista_cargue = []
+    filename =os.path.splitext(name)[0] + '.pkl'
     for fila in celdas:
         empleado = [celda.value for celda in fila]
         empleado= str(empleado[0])
@@ -94,10 +112,26 @@ def comprobar(name:str):
         lista_cargue.append(empleado)
     dcargue= pd.DataFrame(lista_cargue, columns=['first_name'])
     #almacenar datos en la base de datos sql
-    dcargue.to_pickle(url3)
+    dcargue.to_pickle(url+filename)
+    return filename
 
-#
+
+#Busca Persona en listas
 def buscar(name:str,coincidencia:int):
+    datos = pd.read_pickle(url) 
+    lista1=[]
+    lista = datos.to_numpy().tolist()
+    name = name.upper()
+    val=False
+    for datos in lista :
+        datos=str(datos)
+        p= jaro.jaro_metric(name,datos)
+        if p>=0.90 :
+            val=True
+    lista1.append(val)
+    return lista1
+
+def buscar_listas_person(name:str,coincidencia:int):
     datos = pd.read_pickle(url3) 
     lista1=[]
     lista = datos.to_numpy().tolist()
@@ -110,5 +144,4 @@ def buscar(name:str,coincidencia:int):
             val=True
     lista1.append(val)
     return lista1
-    
 

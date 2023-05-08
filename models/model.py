@@ -35,13 +35,12 @@ class Match(Base):
     usuario=Column(String(50))
     consulta = Column(String(100))
 
-
-    class Listas_add(Base):
-        __tablename__ = 'listas_add'
-        
-        id = Column(Integer, primary_key=True)
-        descripcion= Column(String(100))
-        fecha= Column(Date)
+class Listas_add(Base):
+    __tablename__ = 'listas_add'
+    
+    id = Column(Integer, primary_key=True)
+    descripcion= Column(String(100))
+    fecha= Column(Date)
         
 
 
