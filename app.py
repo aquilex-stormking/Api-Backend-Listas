@@ -390,8 +390,11 @@ async def delete_file(folder_name:str,  db1: Session =Depends(auth_user)):
 #GET
 #Busca en lista personalizada
 @app.get("/findcharge/{name}/{coincidencia}")
-async def findcharge(name:str, coincidencia:int , db1: Session =Depends(auth_user)):
-    comprueba= procesar_archivo.buscar(name, coincidencia)
+async def findcharge(name:str, coincidencia:int , db1: Session =Depends(auth_user),db: Session = Depends(connection.get_db)):
+    query = db.query(model.Listas_add)
+    query = query.order_by(desc(model.Listas_add.fecha))
+    lists = query.all()
+    comprueba= procesar_archivo.buscar(name, coincidencia, lists)
     return comprueba
 
 #GET
@@ -432,6 +435,7 @@ async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: S
         db.refresh(new_list) 
         sendmail.sendmail(email)
         return new_list
+        
 
 #POST
 #Recibe parametros para presentar informe individual 
@@ -450,7 +454,15 @@ async def info_listas( db: Session = Depends(connection.get_db), db1: Session =D
     query = query.order_by(desc(model.Listas_add.fecha))
     lists = query.all()
     return lists 
-    
+
+# DELETE
+#Elimina Usuarios
+@app.delete("/listas/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete(id: int,  db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+    listas = db.get(model.Listas_add, id)
+    if listas:
+        db.delete(listas)
+        db.commit()
 
 
 """
@@ -467,7 +479,7 @@ OUTPUT =  {
 async def search_engine(search_query:str, language:str = "lang_es", number_of_articles:int = 5, db:Session = Depends(auth_user)):
     __keys = { "key": "AIzaSyBoKUC3NFQ36iYZj4_Y-wASaAInvr6XVcc", "cx": "e5a2b555bf5da4fda" }
 
-    tems = ['theft', 'captacion', 'ilegal', 'kidnapping', 'lawsuit', 'fraud', 'missing']
+    terms = ['theft', 'captacion', 'ilegal', 'kidnapping', 'lawsuit', 'fraud', 'missing']
 
     formatted_query = "(" + "|".join(terms) + ")" + f" {search_query}"
     

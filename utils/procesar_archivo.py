@@ -11,7 +11,8 @@ url3 = './files/dummy.pkl'
 url4 = "./files2/dummy.pkl"
 ext = ".pkl"
 
-def comprobar2(name:str):
+def comprobar2(name:str,lists:list):
+    
     book= openpyxl.load_workbook(url2+name, data_only=True)
     hoja = book.active
     celdas_id = hoja['A2':'A100']
@@ -43,6 +44,7 @@ def comprobar2(name:str):
     lista = datos.to_numpy().tolist()
     lista1 = consume.consumir_2(lista,name)
     return lista1
+    
 
 
 def buscar2_id(name:str,coincidencia:int):
@@ -107,9 +109,11 @@ def comprobar(name:str):
     filename =os.path.splitext(name)[0] + '.pkl'
     for fila in celdas:
         empleado = [celda.value for celda in fila]
-        empleado= str(empleado[0])
-        empleado = empleado.upper()
-        lista_cargue.append(empleado)
+        if empleado[0]!=None:
+            print(empleado[0])
+            empleado= str(empleado[0])
+            empleado = empleado.upper()
+            lista_cargue.append(empleado)
     dcargue= pd.DataFrame(lista_cargue, columns=['first_name'])
     #almacenar datos en la base de datos sql
     dcargue.to_pickle(url+filename)
@@ -117,19 +121,27 @@ def comprobar(name:str):
 
 
 #Busca Persona en listas
-def buscar(name:str,coincidencia:int):
-    datos = pd.read_pickle(url) 
+def buscar(name:str,coincidencia:int, lists:list):
+    coincidencia = coincidencia/100
+    lista_tables = []
     lista1=[]
-    lista = datos.to_numpy().tolist()
-    name = name.upper()
-    val=False
-    for datos in lista :
-        datos=str(datos)
-        p= jaro.jaro_metric(name,datos)
-        if p>=0.90 :
-            val=True
-    lista1.append(val)
-    return lista1
+    listas_encontrado=[]
+    for item in lists:
+        lista_tables.append(item.descripcion)
+    
+    for name2 in lista_tables:
+        datos = pd.read_pickle(url+name2) 
+        lista = datos.to_numpy().tolist()
+        name = name.upper()
+        for datos in lista :
+            print(datos)
+            datos=str(datos[0])
+            p= jaro.jaro_metric(name,datos)
+            # print(name)
+            # print(datos)
+            if p>=coincidencia : 
+                listas_encontrado.append(name2)
+    return listas_encontrado
 
 def buscar_listas_person(name:str,coincidencia:int):
     datos = pd.read_pickle(url3) 
