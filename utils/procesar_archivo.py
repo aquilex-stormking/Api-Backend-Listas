@@ -2,10 +2,13 @@ import openpyxl
 import pandas as pd
 import jaro
 from utils import consume
+from os import getcwd
 import os
+import pickle
+import shutil
 
 
-url ="./files/"
+url ='./files/'
 url2 ="./files2/"
 url3 = './files/dummy.pkl'
 url4 = "./files2/dummy.pkl"
@@ -143,6 +146,7 @@ def buscar(name:str,coincidencia:int, lists:list):
                 listas_encontrado.append(name2)
     return listas_encontrado
 
+#busca persona recibiendo la coincidencia
 def buscar_listas_person(name:str,coincidencia:int):
     datos = pd.read_pickle(url3) 
     lista1=[]
@@ -157,3 +161,33 @@ def buscar_listas_person(name:str,coincidencia:int):
     lista1.append(val)
     return lista1
 
+#busca el pkl y retorna lista de palabras claves
+def words_keys(name:str):
+    archivo=url+name+".pkl"
+    datos = pd.read_pickle(archivo)
+    datos = datos.to_numpy().tolist()
+    return datos[0]
+
+#Crea un departamento
+def create_department(name):
+    archivo=url+name+".pkl"
+    mi_lista={}
+    datos = pd.DataFrame(mi_lista)
+    datos.to_pickle(archivo)
+    return True
+    
+
+#Añade palabra clave a departamento
+def add_word_key(archivo:str,word:str):
+    archivo1 = archivo
+    archivo=url+archivo+".pkl"
+    lista = pd.read_pickle(archivo)
+    lista = lista.to_numpy().tolist()
+    if len(lista) == 0:
+        lista.append(word)
+    else:
+        lista[0].append(word)
+    os.remove(archivo)
+    datos = pd.DataFrame(lista)
+    datos.to_pickle(archivo)
+    return True

@@ -357,15 +357,15 @@ async def get_person(db1: Session =Depends(auth_user),settings: Settings = Depen
 
 #POST
 #Carga usuario individual 
-@app.post("/Userban/{nombre}/{identificacion}/{tipo_identificacion}/{direccion}/{ciudad}/{pais}")
-async def uploadfile(nombre:str, identificacion:str, tipo_identificacion:str, direccion:str,ciudad:str,pais:str,file:UploadFile =File(...),db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+@app.post("/Userban/{nombre}/{identificacion}/{tipo_identificacion}/{direccion}/{ciudad}/{pais}/{empresa}")
+async def uploadfile(nombre:str, identificacion:str, tipo_identificacion:str, direccion:str,ciudad:str,pais:str,empresa:int,file:UploadFile =File(...),db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
     link_photo = "/photos/"+ file.filename
     with open(getcwd()+"/photos/"+ file.filename, "wb") as myfile:
         content = await file.read()
         myfile.write(content)
         myfile.close()
     
-    listaperson.add_person(nombre,identificacion,tipo_identificacion,direccion,ciudad,pais,link_photo)
+    listaperson.add_person(nombre,identificacion,tipo_identificacion,direccion,ciudad,pais,link_photo,empresa)
     return True
 
 #POST
@@ -476,10 +476,12 @@ OUTPUT =  {
      }
 """
 @app.get("/Google/")
-async def search_engine(search_query:str, language:str = "lang_es", number_of_articles:int = 5, db:Session = Depends(auth_user)):
+async def search_engine(search_query:str, department:str, language:str = "lang_es", number_of_articles:int = 5, db:Session = Depends(auth_user)):
+    
     __keys = { "key": "AIzaSyBoKUC3NFQ36iYZj4_Y-wASaAInvr6XVcc", "cx": "e5a2b555bf5da4fda" }
 
-    terms = ['theft', 'captacion', 'ilegal', 'kidnapping', 'lawsuit', 'fraud', 'missing']
+    terms = find_words_key(department)
+    # terms = ['theft', 'captacion', 'ilegal', 'kidnapping', 'lawsuit', 'fraud', 'missing']
 
     formatted_query = "(" + "|".join(terms) + ")" + f" {search_query}"
     
@@ -500,3 +502,28 @@ async def search_engine(search_query:str, language:str = "lang_es", number_of_ar
         raise HTTPException(status_code=403, detail="Forbidden")
         
 
+def find_words_key(name:str):
+    lists = procesar_archivo.words_keys(name)
+    return lists
+
+
+#POST
+#Recibe parametros para crear categoria 
+@app.post("/department/{department}")
+async def info_person(department:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    ok=procesar_archivo.create_department(department)
+    return ok
+
+#POST
+#Recibe parametros para añadir palabra clave
+@app.post("/department_word/{department}/{word}")
+async def info_person(department:str,word:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    ok=procesar_archivo.add_word_key(department,word)
+    return ok
+
+#GET
+#Recibe department para traer lista
+@app.get("/department_word/{department}")
+async def info_person(department:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    ok=procesar_archivo.words_keys(department)
+    return ok

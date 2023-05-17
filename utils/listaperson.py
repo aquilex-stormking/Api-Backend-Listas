@@ -22,7 +22,7 @@ def crearlista():
     if not existe:
         mkdir("./photos")
 
-def add_person(nombre_completo, identificacion,tipo_identificacion,direccion,ciudad,pais,link_photo):
+def add_person(nombre_completo, identificacion,tipo_identificacion,direccion,ciudad,pais,link_photo,empresa):
     df = pd.read_pickle('dummy5.pkl')
     df['nombre_completo'] = nombre_completo
     df['identificacion'] = identificacion
@@ -31,7 +31,7 @@ def add_person(nombre_completo, identificacion,tipo_identificacion,direccion,ciu
     df['ciudad'] = ciudad
     df['pais'] = pais
     df['link_photo'] = link_photo
-    
+    df['empresa'] = empresa
     df.to_pickle('dummy5.pkl')
 
 def leerlistaperson():
