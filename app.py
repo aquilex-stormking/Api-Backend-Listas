@@ -373,9 +373,10 @@ async def uploadfile(nombre:str, identificacion:str, tipo_identificacion:str, di
 @app.post("/Userban/{nombre_busca}/{coincidencia}")
 async def find_person(nombre_busca:str, coincidencia:int,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
     lista = listaperson.buscarlistaperson(nombre_busca,coincidencia)
-    ruta_imagen = getcwd()+lista[0]['link_photo']
-    imagen = Image.open(ruta_imagen)
-    imagen.show()
+    print(lista)
+    # ruta_imagen = getcwd()+lista[0]['link_photo']
+    # imagen = Image.open(ruta_imagen)
+
     return lista
 
 #DELETE

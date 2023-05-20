@@ -24,7 +24,7 @@ def crearlista():
 
 def add_person(nombre_completo, identificacion,tipo_identificacion,direccion,ciudad,pais,link_photo,empresa):
     df = pd.read_pickle('dummy5.pkl')
-    df['nombre_completo'] = nombre_completo
+    df['nombre_completo'] = nombre_completo.upper()
     df['identificacion'] = identificacion
     df['tipo_identificacion'] = tipo_identificacion
     df['direccion'] = direccion
@@ -45,6 +45,7 @@ def leerlistaperson():
 def buscarlistaperson(nombre_busca,coincidencia):
     coincidencia = coincidencia/100
     datosperson = pd.read_pickle("dummy5.pkl")
+    nombre_busca = nombre_busca.upper()
     lista=[]
     lista = datosperson.to_numpy().tolist()
     listfind = []

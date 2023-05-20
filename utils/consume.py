@@ -40,7 +40,7 @@ def consumir(nombre_busca,coincidencia):
         nombre = str(datos[1])
         p = jaro.jaro_metric(nombre_busca,nombre)
         if p >= coincidencia :
-            val_ofac = 'X'
+            val_ofac = 'Ofac'
             dicc_onu = {'List':'Ofac','Name': datos[1] ,'TipoId':datos[2],'Identificacion':datos[3],'Direccion':datos[4],'Pais':datos[5],'Ciudad':datos[6]}
             list_ofac.append(dicc_onu)
             
@@ -54,7 +54,7 @@ def consumir(nombre_busca,coincidencia):
         nombre=str(datos[1])
         p= jaro.jaro_metric(nombre_busca,nombre)
         if p>=coincidencia :
-            val_onu='X'
+            val_onu='Onu'
             dicc_onu = {'List':'Onu','Name':datos[1],'Tipo_documento':datos[2],'Numero_documento':datos[3],'Description':datos[4],'Pais':datos[5],'Fecha_nacimiento':datos[6]}
             list_onu.append(dicc_onu)
 
@@ -68,7 +68,7 @@ def consumir(nombre_busca,coincidencia):
             nombre=str(datos[1])
             p= jaro.jaro_metric(nombre_busca,nombre)
             if p>=0.77 :
-                val_fbi='X'
+                val_fbi='Fbi'
                 dicc_fbi = {'List':'Fbi','name':datos[1],'Detalle':datos[2],'Link_info':datos[3],'Nacionalidad':datos[4],'Link_picture':datos[5],'Link_ref':datos[6]}
                 list_fbi.append(dicc_fbi)
     except:
@@ -103,7 +103,7 @@ def consumir_id(id,coincidencia):
         nombre = str(datos[3])
         p = jaro.jaro_metric(id,nombre)
         if p >= coincidencia :
-            val_ofac = 'X'
+            val_ofac = 'Ofac'
             dicc_onu = {'List':'Ofac','name': datos[1] ,'TipoId':datos[2],'Identificacion':datos[3],'Direccion':datos[4],'Pais':datos[5],'Ciudad':datos[6]}
             list_ofac.append(dicc_onu)
             
@@ -117,7 +117,7 @@ def consumir_id(id,coincidencia):
         nombre=str(datos[3])
         p= jaro.jaro_metric(id,nombre)
         if p>=coincidencia :
-            val_onu='X'
+            val_onu='Onu'
             dicc_onu = {'list':'Onu','Name':datos[1],'Tipo_documento':datos[2],'Numero_documento':datos[3],'Description':datos[4],'Pais':datos[5],'Fecha_nacimiento':datos[6]}
             list_onu.append(dicc_onu)
 
@@ -130,7 +130,7 @@ def consumir_id(id,coincidencia):
             nombre=str(datos[1])
             p= jaro.jaro_metric(id,nombre)
             if p>=coincidencia :
-                val_fbi='X'
+                val_fbi='Fbi'
                 dicc_fbi = {'list':'Fbi','Name':datos[1],'Detalle':datos[2],'Link_info':datos[3],'Nacionalidad':datos[4],'Link_picture':datos[5],'Link_ref':datos[6]}
                 list_fbi.append(dicc_fbi)
     except:
