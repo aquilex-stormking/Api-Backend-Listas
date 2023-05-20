@@ -2,6 +2,5 @@
 files/**
 files2/**
 photos/**
-*.pkl
 __pycache__/
 .env
