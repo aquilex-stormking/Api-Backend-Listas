@@ -23,24 +23,45 @@ def crearlista():
         mkdir("./photos")
 
 def add_person(nombre_completo, identificacion,tipo_identificacion,direccion,ciudad,pais,link_photo,empresa):
-    df = pd.read_pickle('dummy5.pkl')
-    df['nombre_completo'] = nombre_completo.upper()
-    df['identificacion'] = identificacion
-    df['tipo_identificacion'] = tipo_identificacion
-    df['direccion'] = direccion
-    df['ciudad'] = ciudad
-    df['pais'] = pais
-    df['link_photo'] = link_photo
-    df['empresa'] = empresa
-    df.to_pickle('dummy5.pkl')
+    existe= path.exists("Bans.pkl")
 
-def leerlistaperson():
-    datosperson = pd.read_pickle("dummy5.pkl")
+    if existe:
 
-    lista=[]
-    lista = datosperson.to_numpy().tolist()
+        # Lectura del archivo pickle
+        df = pd.read_pickle('Bans.pkl')
+
+        # Creación de nueva fila
+        nueva_fila = [nombre_completo, identificacion, tipo_identificacion, direccion, ciudad, pais, link_photo, empresa]
+
+        # Agregar nueva fila al dataframe
+        df.loc[len(df)] = nueva_fila
+
+        # Guardar cambios en el archivo pickle
+        df.to_pickle('Bans.pkl')
     
-    return lista 
+        
+    else :
+        pasa1=[] 
+        pasa1.append((nombre_completo.upper(),identificacion,tipo_identificacion,direccion,ciudad,pais,link_photo,empresa))
+        df =pd.DataFrame(pasa1,columns=['nombre_completo', 'identificacion', 'tipo_identificacion', 'direccion', 'ciudad', 'pais', 'link_photo', 'Empresa'])
+        df.to_pickle('Bans.pkl')
+        
+
+
+
+def leerlistaperson(nit:int):
+    df = pd.read_pickle("Bans.pkl")
+
+    lista = df.values.tolist()
+    
+    filtro = []
+    
+    for dato in lista:
+        #compara el filtro para traer datos
+        if dato[7] == nit:
+            filtro.append(dato)
+    
+    return filtro 
 
 def buscarlistaperson(nombre_busca,coincidencia):
     coincidencia = coincidencia/100

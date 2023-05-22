@@ -90,7 +90,8 @@ async def Consume(nombre_busca:str,users:str,coincidencia:int,db: Session = Depe
     db.add(new_list)
     db.commit()
     db.refresh(new_list)
-    return busqueda
+    lista = {'FirstName':busqueda['FirstName'],'Listas':busqueda['Listas'],'FindDate':busqueda['FindDate'],'Consulta':busqueda['Consulta'],'list_find':busqueda['list_find']}
+    return lista
 
 #GET
 #consulta en las listas y devuelve lista
@@ -110,7 +111,8 @@ async def consume(id:str,users:str,coincidencia:int,db: Session = Depends(connec
     db.add(new_list)
     db.commit()
     db.refresh(new_list) 
-    return busqueda
+    lista = {'FirstName':busqueda['FirstName'],'Listas':busqueda['Listas'],'FindDate':busqueda['FindDate'],'Consulta':busqueda['Consulta'],'list_find':busqueda['list_find']}
+    return lista
     
 
 #GET
@@ -290,6 +292,7 @@ async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depend
     prueba = await get_all(db)    
 
     user_db = search_user_db(form.username,prueba)
+    print(user_db.identificacion)
     
     if not user_db:
         raise HTTPException(
@@ -303,7 +306,7 @@ async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depend
             detail="Usuario inactivo")
     if user_db is True:
         user_db=form.username
-    acess_token = {"sub":form.username,"rol":user_db.rol,  "exp": datetime.utcnow()+timedelta(minutes=ACCESS_TOKEN_DURATION)}
+    acess_token = {"sub":form.username,"rol":user_db.rol,"identificacion":user_db.identificacion,"nit":user_db.nit,"exp": datetime.utcnow()+timedelta(minutes=ACCESS_TOKEN_DURATION)}
 
     return {"access_token": jwt.encode(acess_token, SECRET, algorithm=ALGORITHM), "token_type": "bearer"}
 
@@ -350,9 +353,9 @@ async def uploadfile_2(file:UploadFile =File(...),  db1: Session =Depends(auth_u
 
 #GET
 #Obtiene lista individual de personas añadidas
-@app.get("/Userban")
-async def get_person(db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
-    lista = listaperson.leerlistaperson()
+@app.get("/Userban/{nit}")
+async def get_person(nit:int, db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    lista = listaperson.leerlistaperson(nit)
     return lista
 
 #POST

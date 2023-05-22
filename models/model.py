@@ -24,6 +24,8 @@ class User(Base):
     createdate= Column(Date)
     state=Column(String(1))
     rol= Column(String(50))
+    identificacion = Column(Integer)
+    nit = Column(Integer)
 
 class Match(Base):
     __tablename__ = 'match'

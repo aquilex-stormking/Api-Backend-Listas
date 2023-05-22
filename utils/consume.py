@@ -25,6 +25,10 @@ def consumir(nombre_busca,coincidencia):
     list_ofac = [] 
     list_onu = []
     list_fbi = []
+    lists =""
+    ofac = 0
+    onu = 0
+    fbi = 0
     val_ofac = ' '
     val_onu = ' '
     val_fbi = ' '
@@ -41,6 +45,9 @@ def consumir(nombre_busca,coincidencia):
         p = jaro.jaro_metric(nombre_busca,nombre)
         if p >= coincidencia :
             val_ofac = 'Ofac'
+            if ofac == 0 :
+                lists = lists + val_ofac
+                ofac = 1
             dicc_onu = {'List':'Ofac','Name': datos[1] ,'TipoId':datos[2],'Identificacion':datos[3],'Direccion':datos[4],'Pais':datos[5],'Ciudad':datos[6]}
             list_ofac.append(dicc_onu)
             
@@ -55,6 +62,13 @@ def consumir(nombre_busca,coincidencia):
         p= jaro.jaro_metric(nombre_busca,nombre)
         if p>=coincidencia :
             val_onu='Onu'
+            if onu == 0 :
+                if ofac ==0:
+                    lists =lists+ val_onu
+                    onu = 1
+                else :
+                    lists =lists + ", " +val_onu
+                    onu = 1
             dicc_onu = {'List':'Onu','Name':datos[1],'Tipo_documento':datos[2],'Numero_documento':datos[3],'Description':datos[4],'Pais':datos[5],'Fecha_nacimiento':datos[6]}
             list_onu.append(dicc_onu)
 
@@ -69,6 +83,12 @@ def consumir(nombre_busca,coincidencia):
             p= jaro.jaro_metric(nombre_busca,nombre)
             if p>=0.77 :
                 val_fbi='Fbi'
+                if fbi == 0 :
+                    if ofac == 0 and onu == 0 :
+                        lists =lists +val_fbi
+                    else :
+                        lists =lists + ", " +val_fbi
+                        fbi = 1
                 dicc_fbi = {'List':'Fbi','name':datos[1],'Detalle':datos[2],'Link_info':datos[3],'Nacionalidad':datos[4],'Link_picture':datos[5],'Link_ref':datos[6]}
                 list_fbi.append(dicc_fbi)
     except:
@@ -81,7 +101,7 @@ def consumir(nombre_busca,coincidencia):
     rand = rand[:5]
     lista_busquedad = list_onu + list_ofac + list_fbi
 
-    lista ={'FirstName':nombre_busca,'ListOfac':val_ofac,'ListOnu':val_onu,'ListFbi':val_fbi,'FindDate':today,'Consulta':rand,'list_find':lista_busquedad}
+    lista ={'FirstName':nombre_busca,'Listas':lists,'ListOfac':val_ofac,'ListOnu':val_onu,'ListFbi':val_fbi,'FindDate':today,'Consulta':rand,'list_find':lista_busquedad}
     # lista = {}
     return lista
 
@@ -90,6 +110,10 @@ def consumir_id(id,coincidencia):
     list_ofac = [] 
     list_onu = []
     list_fbi = []
+    lists =""
+    ofac = 0
+    onu = 0
+    fbi = 0
     val_ofac = ' '
     val_onu = ' '
     val_fbi = ' '
@@ -104,6 +128,9 @@ def consumir_id(id,coincidencia):
         p = jaro.jaro_metric(id,nombre)
         if p >= coincidencia :
             val_ofac = 'Ofac'
+            if ofac == 0 :
+                lists = lists + val_ofac
+                ofac = 1
             dicc_onu = {'List':'Ofac','name': datos[1] ,'TipoId':datos[2],'Identificacion':datos[3],'Direccion':datos[4],'Pais':datos[5],'Ciudad':datos[6]}
             list_ofac.append(dicc_onu)
             
@@ -118,6 +145,13 @@ def consumir_id(id,coincidencia):
         p= jaro.jaro_metric(id,nombre)
         if p>=coincidencia :
             val_onu='Onu'
+            if onu == 0 :
+                if ofac ==0:
+                    lists =lists+ val_onu
+                    onu = 1
+                else :
+                    lists =lists + ", " +val_onu
+                    onu = 1
             dicc_onu = {'list':'Onu','Name':datos[1],'Tipo_documento':datos[2],'Numero_documento':datos[3],'Description':datos[4],'Pais':datos[5],'Fecha_nacimiento':datos[6]}
             list_onu.append(dicc_onu)
 
@@ -131,6 +165,12 @@ def consumir_id(id,coincidencia):
             p= jaro.jaro_metric(id,nombre)
             if p>=coincidencia :
                 val_fbi='Fbi'
+                if fbi == 0 :
+                    if ofac == 0 and onu == 0 :
+                        lists =lists +val_fbi
+                    else :
+                        lists =lists + ", " +val_fbi
+                        fbi = 1
                 dicc_fbi = {'list':'Fbi','Name':datos[1],'Detalle':datos[2],'Link_info':datos[3],'Nacionalidad':datos[4],'Link_picture':datos[5],'Link_ref':datos[6]}
                 list_fbi.append(dicc_fbi)
     except:
@@ -143,7 +183,7 @@ def consumir_id(id,coincidencia):
     today = str(date.today())
     lista_busquedad = list_onu + list_ofac + list_fbi
 
-    lista ={'FirstName':id,'ListOfac':val_ofac,'ListOnu':val_onu,'ListFbi':val_fbi,'FindDate':today,'Consulta':rand,'list_find':lista_busquedad}
+    lista ={'FirstName':id,'Listas':lists,'ListOfac':val_ofac,'ListOnu':val_onu,'ListFbi':val_fbi,'FindDate':today,'Consulta':rand,'list_find':lista_busquedad}
     
     return lista
 
