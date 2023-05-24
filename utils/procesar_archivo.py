@@ -13,6 +13,7 @@ url2 ="./files2/"
 url3 = './files/dummy.pkl'
 url4 = "./files2/dummy.pkl"
 ext = ".pkl"
+url_deparments = "./departments/"
 
 def comprobar2(name:str,lists:list):
     
@@ -163,14 +164,19 @@ def buscar_listas_person(name:str,coincidencia:int):
 
 #busca el pkl y retorna lista de palabras claves
 def words_keys(name:str):
-    archivo=url+name+".pkl"
+    archivo=url_deparments+name+".pkl"
     datos = pd.read_pickle(archivo)
     datos = datos.to_numpy().tolist()
-    return datos[0]
+    if len(datos) == 0:
+        datos.append({'departmen': 'default', 'words': 'default'})
+    else:
+        datos = {'departmen':name,'words':datos[0]}
+    
+    return datos
 
 #Crea un departamento
 def create_department(name):
-    archivo=url+name+".pkl"
+    archivo=url_deparments+name+".pkl"
     mi_lista={}
     datos = pd.DataFrame(mi_lista)
     datos.to_pickle(archivo)
@@ -180,7 +186,7 @@ def create_department(name):
 #Añade palabra clave a departamento
 def add_word_key(archivo:str,word:str):
     archivo1 = archivo
-    archivo=url+archivo+".pkl"
+    archivo=url_deparments+archivo+".pkl"
     lista = pd.read_pickle(archivo)
     lista = lista.to_numpy().tolist()
     if len(lista) == 0:
@@ -191,3 +197,7 @@ def add_word_key(archivo:str,word:str):
     datos = pd.DataFrame(lista)
     datos.to_pickle(archivo)
     return True
+
+def get_departments(): 
+    archivos_pkl_lista = [archivo[:-4] for archivo in os.listdir(url_deparments) if archivo.endswith('.pkl')]
+    return archivos_pkl_lista

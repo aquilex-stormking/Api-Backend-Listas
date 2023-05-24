@@ -185,6 +185,8 @@ async def post(user_found: schema.UserFoundCreate, db: Session = Depends(connect
                             ,createdate = user_found.createdate
                             ,state = user_found.state
                             ,rol = user_found.rol
+                            ,nit=user_found.nit
+                            ,identificacion=user_found.identificacion
                             )
     db.add(new_list2)
     db.commit()    
@@ -207,6 +209,8 @@ async def post_2(user_found: schema.UserFoundCreate, db: Session = Depends(conne
                             ,createdate = user_found.createdate
                             ,state = user_found.state
                             ,rol = user_found.rol
+                            ,nit=user_found.nit
+                            ,identificacion=user_found.identificacion
                             )
     db.add(new_list2)
     db.commit()    
@@ -479,7 +483,7 @@ OUTPUT =  {
        "link": "",
      }
 """
-@app.get("/Google/")
+@app.get("/Google/{search_query}/{department}/{languaje}/{number_of_articles}")
 async def search_engine(search_query:str, department:str, language:str = "lang_es", number_of_articles:int = 5, db:Session = Depends(auth_user)):
     
     __keys = { "key": "AIzaSyBoKUC3NFQ36iYZj4_Y-wASaAInvr6XVcc", "cx": "e5a2b555bf5da4fda" }
@@ -510,6 +514,11 @@ def find_words_key(name:str):
     lists = procesar_archivo.words_keys(name)
     return lists
 
+@app.post("/department/{department}")
+async def info_person(department:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    ok=procesar_archivo.create_department(department)
+    return ok
+
 
 #POST
 #Recibe parametros para crear categoria 
@@ -523,6 +532,13 @@ async def info_person(department:str,db1: Session =Depends(auth_user),settings: 
 @app.post("/department_word/{department}/{word}")
 async def info_person(department:str,word:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
     ok=procesar_archivo.add_word_key(department,word)
+    return ok
+
+#GET
+#Recibe department para traer lista
+@app.get("/department_word/")
+async def info_person(db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    ok=procesar_archivo.get_departments()
     return ok
 
 #GET
