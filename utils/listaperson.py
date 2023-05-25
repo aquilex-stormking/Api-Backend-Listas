@@ -4,7 +4,7 @@ from PIL import Image
 import jaro
 
 def crearlista():
-    existe= path.exists("dummy5.pkl")
+    existe= path.exists("Bans.pkl")
     if not existe:
         lista = []
         nombre_completo = ''
@@ -16,7 +16,7 @@ def crearlista():
         link_photo = ''
         lista.append((nombre_completo,identificacion,tipo_identificacion,direccion,ciudad,pais,link_photo))
         dfperson = pd.DataFrame(lista, columns = ['nombre_completo', 'identificacion','tipo_identificacion','direccion','ciudad','pais','link_photo'])
-        dfperson.to_pickle("dummy5.pkl")
+        dfperson.to_pickle("Bans.pkl")
     
     existe= path.exists("./photos")
     if not existe:
@@ -65,13 +65,14 @@ def leerlistaperson(nit:int):
 
 def buscarlistaperson(nombre_busca,coincidencia):
     coincidencia = coincidencia/100
-    datosperson = pd.read_pickle("dummy5.pkl")
+    datosperson = pd.read_pickle("Bans.pkl")
     nombre_busca = nombre_busca.upper()
     lista=[]
     lista = datosperson.to_numpy().tolist()
     listfind = []
     for datos in lista:
-        nombre=str(datos[0])
+        nombre=str(datos[0].upper())
+        
         p= jaro.jaro_metric(nombre_busca,nombre)
         if p>=coincidencia :
             
