@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Response
 from fastapi.responses import FileResponse, JSONResponse
 from typing import List
 from utils import connection,consume as con,procesar_archivo,sendmail, listaperson
@@ -447,9 +447,9 @@ async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: S
 
 #POST
 #Recibe parametros para presentar informe individual 
-@app.post("/Informe/{nombre_busca}/{coincidencia}/{listaofac}/{listaonu}/{listafbi}")
-async def info_person(nombre_busca:str, coincidencia:int,listaofac:str,listaonu:str, listafbi:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
-    con.reportepdf(nombre_busca,coincidencia,listaofac,listaonu,listafbi)
+@app.post("/Informe/{nombre_busca}/{coincidencia}/{lists}")
+async def info_person(nombre_busca:str, coincidencia:int,lists:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+    con.reportepdf(nombre_busca,coincidencia,lists)
     path=getcwd()+"/"+settings.NAME_ARCHIVO_REPORTE3
     return path
 
@@ -547,3 +547,19 @@ async def info_person(db1: Session =Depends(auth_user),settings: Settings = Depe
 async def info_person(department:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
     ok=procesar_archivo.words_keys(department)
     return ok
+
+#GET
+#Recibe PATH PARA DESCARGAR 
+@app.get("/download/{file_path:path}")
+async def download_file(file_path: str, response: Response):
+    file_path = file_path[1:]
+    if os.path.isfile(file_path):
+        with open(file_path, "rb") as file:
+            contents = file.read()
+        file_extension = os.path.splitext(file_path)[1]
+        # print(file_extension) # Uncomment this line to check the file extension
+        media_type = f"image/{file_extension[1:]}" # Update this line to set the media type dynamically based on the file extension
+        response.headers["Content-Disposition"] = f"attachment; filename={file_path}"
+        return Response(content=contents, media_type=media_type, status_code=200)
+    else:
+        return {"detail": "File not found."}

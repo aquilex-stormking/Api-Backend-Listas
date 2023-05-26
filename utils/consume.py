@@ -314,12 +314,12 @@ def consumir_2(lista:list,name:str):
     return lista
 
 
-def reportepdf(nombre_busca,coincidencia,listaofac,listaonu,listafbi):
+def reportepdf(nombre_busca,coincidencia,lists):
 
     lista=[]
     today = str(date.today())
-    lista.append((nombre_busca,listaofac,listaonu,listafbi))
-    df1=pd.DataFrame(lista, columns=['Nombre','ListaOfac','ListaOnu','ListaFBI'])
+    lista.append((nombre_busca,lists))
+    
     coincidencia = coincidencia
 
     #pdf
@@ -339,19 +339,14 @@ def reportepdf(nombre_busca,coincidencia,listaofac,listaonu,listafbi):
     pdf.set_fill_color(r,g,b)
     pdf.cell(30,10,"Lista Ofac", border=1,align="C",fill=True)
     pdf.set_fill_color(r,g,b)
-    pdf.cell(30,10,"Lista Onu", border=1,align="C",fill=True)
-    pdf.set_fill_color(r,g,b)
-    pdf.cell(30,10,"Lista FBI", border=1,align="C",fill=True)
-    pdf.set_fill_color(r,g,b)
+    
 
     # Agregar filas
     pdf.set_font("Times",size=8)
     pdf.ln(10)       
     pdf.cell(30)
     pdf.cell(50,10,str(nombre_busca), border=1, align="J")  
-    pdf.cell(30,10,str(listaofac), border=1,align="C")
-    pdf.cell(30,10,str(listaonu), border=1,align="C")
-    pdf.cell(30,10,str(listafbi), border=1,align="C")  
+    pdf.cell(30,10,str(lists), border=1,align="C")
     pdf.ln(20)
 
     pdf.set_font("Times", size=14)
