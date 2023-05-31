@@ -296,7 +296,6 @@ async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depend
     prueba = await get_all(db)    
 
     user_db = search_user_db(form.username,prueba)
-    print(user_db.identificacion)
     
     if not user_db:
         raise HTTPException(
@@ -451,7 +450,7 @@ async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: S
 async def info_person(nombre_busca:str, coincidencia:int,lists:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
     con.reportepdf(nombre_busca,coincidencia,lists)
     path=getcwd()+"/"+settings.NAME_ARCHIVO_REPORTE3
-    return path
+    return FileResponse(path, media_type="application/pdf", filename="tabla2.pdf")
 
 
 #POST

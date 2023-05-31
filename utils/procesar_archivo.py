@@ -2,7 +2,7 @@ import openpyxl
 import pandas as pd
 import jaro
 from utils import consume
-from os import getcwd
+from os import getcwd, path
 import os
 import pickle
 import shutil
@@ -109,16 +109,18 @@ def comprobar(name:str):
     book= openpyxl.load_workbook(url+name, data_only=True)
     hoja = book.active
     celdas = hoja['A2':'A1000']
+    celdas2 = hoja['B2':'B1000']
     lista_cargue = []
     filename =os.path.splitext(name)[0] + '.pkl'
-    for fila in celdas:
-        empleado = [celda.value for celda in fila]
-        if empleado[0]!=None:
-            print(empleado[0])
-            empleado= str(empleado[0])
-            empleado = empleado.upper()
-            lista_cargue.append(empleado)
-    dcargue= pd.DataFrame(lista_cargue, columns=['first_name'])
+    for fila,fila2 in zip(celdas,celdas2):
+        identificacion = [celda.value for celda in fila]
+        nombre = [celda.value for celda in fila2]
+        if identificacion[0]!=None and nombre[0]!=None:
+            identificacion= str(identificacion[0])
+            nombre= str(nombre[0])
+            nombre = nombre.upper()
+            lista_cargue.append((identificacion,nombre))
+    dcargue= pd.DataFrame(lista_cargue, columns=['Identificacion','Firstname'])
     #almacenar datos en la base de datos sql
     dcargue.to_pickle(url+filename)
     return filename
@@ -128,23 +130,31 @@ def comprobar(name:str):
 def buscar(name:str,coincidencia:int, lists:list):
     coincidencia = coincidencia/100
     lista_tables = []
-    lista1=[]
     listas_encontrado=[]
     for item in lists:
         lista_tables.append(item.descripcion)
-    
+
     for name2 in lista_tables:
-        datos = pd.read_pickle(url+name2) 
-        lista = datos.to_numpy().tolist()
-        name = name.upper()
-        for datos in lista :
-            print(datos)
-            datos=str(datos[0])
-            p= jaro.jaro_metric(name,datos)
-            # print(name)
-            # print(datos)
-            if p>=coincidencia : 
-                listas_encontrado.append(name2)
+        existe= path.exists(url+name2)
+        if existe:
+            datos = pd.read_pickle(url+name2) 
+            lista = datos.to_numpy().tolist()
+            name = name.upper()
+            for datos in lista :
+                datos=str(datos[0])
+                p= jaro.jaro_metric(name,datos)
+                if p>=coincidencia : 
+                    name2 = name2.replace(".pkl", "")
+                    listas_encontrado.append(name2+'por Identificacion')
+            for datos in lista :
+                datos=str(datos[1])
+                p= jaro.jaro_metric(name,datos)
+                if p>=coincidencia : 
+                    name2 = name2.replace(".pkl", "")
+                    listas_encontrado.append(name2+' por Nombre')
+        else:
+            name2 = name2.replace(".pkl", "")
+            listas_encontrado.append(name2+' No existe el archivo')
     return listas_encontrado
 
 #busca persona recibiendo la coincidencia
