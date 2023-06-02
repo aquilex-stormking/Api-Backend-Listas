@@ -145,7 +145,7 @@ def buscar(name:str,coincidencia:int, lists:list):
                 p= jaro.jaro_metric(name,datos)
                 if p>=coincidencia : 
                     name2 = name2.replace(".pkl", "")
-                    listas_encontrado.append(name2+'por Identificacion')
+                    listas_encontrado.append(name2+' por Identificacion')
             for datos in lista :
                 datos=str(datos[1])
                 p= jaro.jaro_metric(name,datos)

@@ -337,7 +337,7 @@ def reportepdf(nombre_busca,coincidencia,lists):
     pdf.set_fill_color(r,g,b)
     pdf.cell(50,10,"Nombre", border=1, align="C",fill=True)
     pdf.set_fill_color(r,g,b)
-    pdf.cell(30,10,"Lista Ofac", border=1,align="C",fill=True)
+    pdf.cell(30,10,"Listas", border=1,align="C",fill=True)
     pdf.set_fill_color(r,g,b)
     
 
