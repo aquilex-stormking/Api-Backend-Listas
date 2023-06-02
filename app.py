@@ -309,8 +309,8 @@ async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depend
             detail="Usuario inactivo")
     if user_db is True:
         user_db=form.username
-    acess_token = {"sub":form.username,"rol":user_db.rol,"identificacion":user_db.identificacion,"nit":user_db.nit,"exp": datetime.utcnow()+timedelta(minutes=ACCESS_TOKEN_DURATION)}
-
+    acess_token = {"sub":form.username,"name":user_db.firstname,"rol":user_db.rol,"identificacion":user_db.identificacion,"nit":user_db.nit,"exp": datetime.utcnow()+timedelta(minutes=ACCESS_TOKEN_DURATION)}
+    print(acess_token)
     return {"access_token": jwt.encode(acess_token, SECRET, algorithm=ALGORITHM), "token_type": "bearer"}
 
 #POST
