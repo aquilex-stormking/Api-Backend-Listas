@@ -310,7 +310,7 @@ async def login(form: OAuth2PasswordRequestForm = Depends(),db: Session = Depend
     if user_db is True:
         user_db=form.username
     acess_token = {"sub":form.username,"name":user_db.firstname,"rol":user_db.rol,"identificacion":user_db.identificacion,"nit":user_db.nit,"exp": datetime.utcnow()+timedelta(minutes=ACCESS_TOKEN_DURATION)}
-    print(acess_token)
+    
     return {"access_token": jwt.encode(acess_token, SECRET, algorithm=ALGORITHM), "token_type": "bearer"}
 
 #POST
@@ -485,7 +485,7 @@ OUTPUT =  {
 @app.get("/Google/{search_query}/{department}/{languaje}/{number_of_articles}")
 async def search_engine(search_query:str, department:str, language:str = "lang_es", number_of_articles:int = 5, db:Session = Depends(auth_user)):
     
-    __keys = { "key": "AIzaSyBoKUC3NFQ36iYZj4_Y-wASaAInvr6XVcc", "cx": "e5a2b555bf5da4fda" }
+    __keys = { "key": "AIzaSyDTaSnGNLxM_O-IMkvupJvt9vOcDm4VAD4", "cx": "90138e4e270fb468d" }
 
     terms = find_words_key(department)
     # terms = ['theft', 'captacion', 'ilegal', 'kidnapping', 'lawsuit', 'fraud', 'missing']
