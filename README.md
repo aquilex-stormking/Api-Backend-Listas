@@ -13,7 +13,7 @@ pip install fastapi hypercorn
 
 #Correr FastAPI con Hypercorn: Navega a la carpeta de tu proyecto y ejecuta el siguiente comando (reemplaza main:app con la ubicación de tu aplicación FastAPI):
 
-hypercorn main:app --bind 0.0.0.0:8080
+hypercorn app:app --bind 0.0.0.0:8080
 
 #para configurar de acuerdo a tu base de datos debes dirigirte a la siguiente ruta: utils/connection en la linea 15 te aparecera:
 
