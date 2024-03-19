@@ -2,7 +2,7 @@ import requests
 from fastapi import Depends
 import jaro
 from datetime import date
-from .procesar_archivo import buscar2_id,buscar2_nombre
+from .procesar_archivo import buscar2_id,buscar2_nombre,buscar
 import random,string
 import pandas as pd
 from .config import get_settings
@@ -187,8 +187,16 @@ def consumir_id(id,coincidencia):
     
     return lista
 
-def consumir_2(lista:list,name:str):
+def fit_text(self, width, height, text):
+        font_size = 8
+        while self.get_string_width(text) > width and font_size > 2:
+            self.set_font("Arial", size=font_size)
+            font_size -= 0.1
+        return font_size
 
+def consumir_2(lista:list,name:str,coincidencia,lists):
+
+    ancho = False
     lista1 = {'Nombre':[],'ListaOnu':[],'ListaOfac':[],'ListaFBI':[],'ListaCargue':[]}
     writer=pd.ExcelWriter(dato.NAME_ARCHIVO_REPORTE)
     for nombre_busca in lista:
@@ -198,24 +206,34 @@ def consumir_2(lista:list,name:str):
             val_fbi = ' '
             id_busca = nombre_busca[0]
             nombre_busca=nombre_busca[1].upper()
-            val_cargue=buscar2_id(nombre_busca,90)
+            comprueba1= buscar(nombre_busca, coincidencia, lists)
+            comprueba2= buscar(id_busca, coincidencia, lists)
+            cadena1 = ''.join(comprueba1)
+            cadena2 = ''.join(comprueba2)
+            cadena = cadena1 + ", " + cadena2
+            cant_carac = len(cadena)
+            if cant_carac > 22 :
+                ancho =True
+            val_cargue = buscar2_id(nombre_busca,90)
             if val_cargue =='':
                 val_cargue=buscar2_nombre(nombre_busca,90)
             
+            coinci = coincidencia/100
             #Ofac
             url =dato.URLOFAC
             data = requests.get(url)
+
             if data.status_code == 200:
                 data_ofac= data.json()
             for datos in data_ofac :
                 identificacion = str(datos[3])
                 p= jaro.jaro_metric(id_busca,identificacion)
-                if p>= 0.9 :
+                if p>= coinci :
                     val_ofac='X'
                 if val_ofac == ' ':
                     nombre = str(datos[1])
                     p= jaro.jaro_metric(nombre_busca,nombre)
-                    if p>= 0.9 :
+                    if p>= coinci :
                         val_ofac='X'
 
             #Onu
@@ -226,12 +244,12 @@ def consumir_2(lista:list,name:str):
             for datos in data_onu:
                 identificacion = str(datos[3])
                 p= jaro.jaro_metric(id_busca,identificacion)
-                if p>= 0.9 :
+                if p>= coinci :
                     val_onu='X'
                 if val_onu == ' ':
                     nombre = str(datos[1])
                     p= jaro.jaro_metric(nombre_busca,nombre)
-                    if p>= 0.9 :
+                    if p>= coinci :
                         val_onu='X'
             
             url =dato.URLFBI
@@ -241,7 +259,7 @@ def consumir_2(lista:list,name:str):
             for datos in data_fbi:
                 datos=str(datos)
                 p= jaro.jaro_metric(nombre_busca,datos)
-                if p>=0.9 :
+                if p>= coinci :
                     val_onu='X'
 
             #añadir a lista
@@ -249,11 +267,14 @@ def consumir_2(lista:list,name:str):
             lista1['ListaOfac'].append(val_ofac)
             lista1['ListaOnu'].append(val_onu)
             lista1['ListaFBI'].append(val_fbi)
-            lista1['ListaCargue'].append(val_cargue)
-    
+            lista1['ListaCargue'].append(cadena)
+   
+    nombre_archivo = "mi_dataframe.xlsx"
     df1=pd.DataFrame(lista1, columns=['Nombre','ListaOfac','ListaOnu','ListaFBI','ListaCargue'])
+    df1.to_excel(nombre_archivo,index=True)
     
     pdf=FPDF()
+    pdf.encoding = 'cp1252'  # Cambia la codificación a 'utf-8' o 'cp1252'
     pdf.add_page()
     pdf.set_font("Arial",size=18)
     pdf.image("Imagen3.jpg", x=5, y=5, w=25, h=15)
@@ -278,6 +299,7 @@ def consumir_2(lista:list,name:str):
     pdf.cell(30,10,"Lista Cargue", border=1,align="C",fill=True)
     pdf.ln()
 
+    
     # Agregar filas
     pdf.set_font("Arial",size=8)
     for fila in df1.values:
@@ -285,17 +307,31 @@ def consumir_2(lista:list,name:str):
         i=0
         for valor in fila:
 
-            if i ==0:
-                
-                pdf.cell(40,10,str(valor), border=1, align="J")
+            if i == 0:
+                pdf.set_font("Arial",size=8)
+                pdf.cell(40, 30, valor, border=1, align="J")
+
             else :
+                width = 30
+                height = 30
+                text = valor
+                long_cad = len(valor)
+                if long_cad >22:
+                    print(valor)
+                    print(type(valor))
+                    font_size = fit_text(pdf,width,height,text)
+                    pdf.set_font("Arial", size=font_size)
+                    valor = valor.encode('latin-1').decode('latin-1')
+                    pdf.cell(30, 30, str(valor), border=1, align="J")
+                else:     
+                    valor = valor.encode('latin-1').decode('latin-1')
+                    pdf.cell(30, 30, str(valor), border=1, align="J")     
                 
-                pdf.cell(30,10,str(valor), border=1,align="C")
             i+=1   
         pdf.ln()
-
+    
     # Guardar archivo
-    pdf.output("tabla.pdf")
+    # pdf.output("tabla.pdf")
     
     
     df1.to_excel(writer,'Reporte',index=False)

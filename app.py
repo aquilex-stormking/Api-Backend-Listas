@@ -406,16 +406,16 @@ async def findcharge(name:str, coincidencia:int , db1: Session =Depends(auth_use
 
 #GET
 #Descarga lista cargada
-@app.get("/downloadcharge")
-async def findcharge(name:str,  db1: Session =Depends(auth_user), settings: Settings = Depends(get_settings)):
-    
-    return FileResponse(getcwd()+"files/"+settings.NAME_ARCHIVO_CARGUE)
+@app.get("/downloadcharge/{name}")
+async def downloadcharge(name:str,  db1: Session =Depends(auth_user), settings: Settings = Depends(get_settings)):
+    file_path = path.join(path.abspath(getcwd()), "files", name)
+    return FileResponse(file_path)
 
 #POST
 #Realiza busqueda por cargue de archivo cruzando todas las listas y envial  al correo
-@app.post("/uploadMassive/{email}/{users}")
+@app.post("/uploadMassive/{email}/{users}",tags=["Upload"])
 async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: Session = Depends(connection.get_db),  db1: Session =Depends(auth_user),):
-    
+    #comprueba si existe el archivo en files2
     existe= path.exists("files2")
     if existe:
         await delete_file("files2")
@@ -442,7 +442,45 @@ async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: S
         db.refresh(new_list) 
         sendmail.sendmail(email)
         return new_list
-        
+
+#POST
+#Realiza busqueda por cargue de archivo cruzando todas las listas y envial  al correo
+@app.post("/uploadMassive2/{email}/{users}/{coincidencia}",tags=["Upload"])
+async def uploadfilemassive(email:str,users:str,coincidencia:int,file:UploadFile =File(...),db: Session = Depends(connection.get_db)):
+    query = db.query(model.Listas_add)
+    query = query.order_by(desc(model.Listas_add.fecha))
+    lists = query.all()
+    
+
+    existe= path.exists("files2")
+    if existe:
+        await delete_file("files2")
+        mkdir("files2")
+    else :
+        mkdir("files2")
+    with open(getcwd()+"/files2/"+ file.filename, "wb") as myfile:
+        content = await file.read()
+        myfile.write(content)
+        myfile.close()
+        lista = procesar_archivo.comprobar3(file.filename,lists,coincidencia)
+        busqueda = lista
+    
+        new_list = model.Listas(firstname = busqueda['FirstName']
+                            , listofac = busqueda['ListOfac']
+                            , listonu = busqueda['ListOnu']
+                            , listfbi = busqueda['ListFbi']
+                            , finddate = busqueda['FindDate']
+                            , consulta = busqueda['Consulta']
+                            , user = users
+                            )
+        db.add(new_list)
+        db.commit()
+        db.refresh(new_list) 
+        file_path = path.join(path.abspath(getcwd()), "", 'mi_dataframe.xlsx')
+        return FileResponse(file_path)
+
+        # sendmail.sendmail(email)
+        return new_list
 
 #POST
 #Recibe parametros para presentar informe individual 
@@ -512,11 +550,6 @@ async def search_engine(search_query:str, department:str, language:str = "lang_e
 def find_words_key(name:str):
     lists = procesar_archivo.words_keys(name)
     return lists
-
-@app.post("/department/{department}")
-async def info_person(department:str,db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
-    ok=procesar_archivo.create_department(department)
-    return ok
 
 
 #POST

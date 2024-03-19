@@ -15,7 +15,8 @@ url4 = "./files2/dummy.pkl"
 ext = ".pkl"
 url_deparments = "./departments/"
 
-def comprobar2(name:str,lists:list):
+# para buscar listas 
+def comprobar2(name:str):
     
     book= openpyxl.load_workbook(url2+name, data_only=True)
     hoja = book.active
@@ -48,6 +49,40 @@ def comprobar2(name:str,lists:list):
     lista = datos.to_numpy().tolist()
     lista1 = consume.consumir_2(lista,name)
     return lista1
+
+def comprobar3(name:str,lists:list,coincidencia:int):
+    
+    book= openpyxl.load_workbook(url2+name, data_only=True)
+    hoja = book.active
+    celdas_id = hoja['A2':'A500']
+    celdas_nombre = hoja['B2':'B500']
+    lista_cargue = []
+    identificacion = []
+    nombre = []
+
+    for fila in celdas_id:
+        empleado = [celda.value for celda in fila]
+        empleado_id = str(empleado[0])
+        empleado_id = empleado_id.upper()   
+        if empleado_id !='NONE':
+            identificacion.append(empleado_id)
+    for fila in celdas_nombre:
+        empleado = [celda.value for celda in fila]
+        empleado_nombre = str(empleado[0])
+        empleado_nombre = empleado_nombre.upper()
+        if empleado_nombre !='NONE':
+            nombre.append(empleado_nombre)
+    for i in range(len(nombre)):
+        lista_cargue.append((identificacion[i], nombre[i]))
+    
+    
+    dcargue= pd.DataFrame(lista_cargue, columns=['Id','Nombre'])
+    #almacenar datos en la base de datos sql
+    dcargue.to_pickle(url4)
+    datos = pd.read_pickle(url4) 
+    lista = datos.to_numpy().tolist()
+    lista1 = consume.consumir_2(lista,name,coincidencia,lists)
+    return lista1
     
 
 
@@ -64,7 +99,7 @@ def buscar2_id(name:str,coincidencia:int):
             datos = str(datos[0])
             p= jaro.jaro_metric(name,datos)
             if p >= coincidencia:
-                val='x'
+                val='x(identificacion)'
     
     except FileNotFoundError:
         val=''  
@@ -83,7 +118,7 @@ def buscar2_nombre(name:str,coincidencia:int):
             datos = datos[1]
             p= jaro.jaro_metric(name,datos)
             if p >= coincidencia :
-                val='x'
+                val='x(Nombre)'
     
     except FileNotFoundError:
         val=''
@@ -108,8 +143,8 @@ def buscar2_nombre(name:str,coincidencia:int):
 def comprobar(name:str):
     book= openpyxl.load_workbook(url+name, data_only=True)
     hoja = book.active
-    celdas = hoja['A2':'A1000']
-    celdas2 = hoja['B2':'B1000']
+    celdas = hoja['A2':'A1001']
+    celdas2 = hoja['B2':'B1001']
     lista_cargue = []
     filename =os.path.splitext(name)[0] + '.pkl'
     for fila,fila2 in zip(celdas,celdas2):
@@ -128,6 +163,41 @@ def comprobar(name:str):
 
 #Busca Persona en listas
 def buscar(name:str,coincidencia:int, lists:list):
+    coincidencia = coincidencia/100
+    lista_tables = []
+    listas_encontrado=[]
+    for item in lists:
+       lista_tables.append(item.descripcion)
+
+    for name2 in lista_tables:
+        existe= path.exists(url+name2)
+        if existe:
+            datos = pd.read_pickle(url+name2) 
+            lista = datos.to_numpy().tolist()
+            name = name.upper()
+            indice = 2
+            for datos in lista :
+                datos=str(datos[0])
+                p= jaro.jaro_metric(name,datos)
+                if p>=coincidencia : 
+                    name2 = name2.replace(".pkl", "")
+                    listas_encontrado.append(name2+' por Identificacion('+str(indice)+')')
+                indice+=1
+            indice2 = 2 
+            for datos in lista :
+                datos=str(datos[1])
+                p= jaro.jaro_metric(name,datos)
+                if p>=coincidencia : 
+                    name2 = name2.replace(".pkl", "")
+                    listas_encontrado.append(name2+' por Nombre('+str(indice2)+') ')
+                indice2+=1     
+        else:
+            name2 = name2.replace(".pkl", "")
+            listas_encontrado.append(name2+' No existe el archivo')
+    return listas_encontrado
+
+#Busca Persona en listas
+def buscar2(name:str,coincidencia:int, lists:list):
     coincidencia = coincidencia/100
     lista_tables = []
     listas_encontrado=[]
@@ -153,8 +223,9 @@ def buscar(name:str,coincidencia:int, lists:list):
                     name2 = name2.replace(".pkl", "")
                     listas_encontrado.append(name2+' por Nombre')
         else:
-            name2 = name2.replace(".pkl", "")
-            listas_encontrado.append(name2+' No existe el archivo')
+            # name2 = name2.replace(".pkl", "")
+            # listas_encontrado.append(name2+' No existe el archivo')
+            pass 
     return listas_encontrado
 
 #busca persona recibiendo la coincidencia
