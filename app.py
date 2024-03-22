@@ -334,8 +334,14 @@ async def uploadfile(file:UploadFile =File(...),  db1: Session =Depends(auth_use
 #POST
 #Caga lista personalizada
 @app.post("/upload2")
-async def uploadfile_2(file:UploadFile =File(...),  db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings),db: Session = Depends(connection.get_db)):
+async def uploadfile_2(file:UploadFile =File(...),settings: Settings = Depends(get_settings),db: Session = Depends(connection.get_db)):
     
+    existe= path.exists("files")
+    if existe:
+        await delete_file("files")
+        mkdir("files")
+    else :
+        mkdir("files")
     with open(getcwd()+"/files/"+ file.filename, "wb") as myfile:
         content = await file.read()
         myfile.write(content)
