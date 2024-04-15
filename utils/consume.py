@@ -194,9 +194,15 @@ def fit_text(self, width, height, text):
             font_size -= 0.1
         return font_size
 
-def consumir_2(lista:list,name:str,coincidencia,lists):
+def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
 
     ancho = False
+    if not coincidencia:
+        # Añade los datos por defecto
+        coincidencia = 70
+    if not lists:
+        lists=[]
+    
     lista1 = {'Nombre':[],'ListaOnu':[],'ListaOfac':[],'ListaFBI':[],'ListaCargue':[]}
     writer=pd.ExcelWriter(dato.NAME_ARCHIVO_REPORTE)
     for nombre_busca in lista:
@@ -317,8 +323,7 @@ def consumir_2(lista:list,name:str,coincidencia,lists):
                 text = valor
                 long_cad = len(valor)
                 if long_cad >22:
-                    print(valor)
-                    print(type(valor))
+                    
                     font_size = fit_text(pdf,width,height,text)
                     pdf.set_font("Arial", size=font_size)
                     valor = valor.encode('latin-1').decode('latin-1')
@@ -335,7 +340,7 @@ def consumir_2(lista:list,name:str,coincidencia,lists):
     
     
     df1.to_excel(writer,'Reporte',index=False)
-    writer.save()
+    # writer.save()
     
 
     #Generador de id de consulta
