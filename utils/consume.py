@@ -207,9 +207,9 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
     writer=pd.ExcelWriter(dato.NAME_ARCHIVO_REPORTE)
     for nombre_busca in lista:
             
-            val_ofac= ' '
-            val_onu = ' '
-            val_fbi = ' '
+            val_ofac= False
+            val_onu = False
+            val_fbi = False
             nivel = coincidencia
             id_busca = nombre_busca[0]
             nombre_busca=nombre_busca[1].upper()
@@ -242,8 +242,7 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
                     p= jaro.jaro_metric(nombre_busca,nombre)
                     if p>= coinci :
                         val_ofac = True
-                    else:
-                        val_ofac = False
+                    
 
             #Onu
             url =dato.URLONU
@@ -254,14 +253,13 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
                 identificacion = str(datos[3])
                 p= jaro.jaro_metric(id_busca,identificacion)
                 if p>= coinci :
-                    val_onu= True
+                    val_onu = True
                 if val_onu == ' ':
                     nombre = str(datos[1])
                     p= jaro.jaro_metric(nombre_busca,nombre)
                     if p>= coinci :
                         val_onu = True
-                    else :
-                        val_onu = False
+                    
 
             url =dato.URLFBI
             data = requests.get(url)
@@ -272,8 +270,7 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
                 p= jaro.jaro_metric(nombre_busca,datos)
                 if p>= coinci :
                     val_fbi = True
-                else:
-                    val_fbi = False
+                
 
             #añadir a lista
             item = {
