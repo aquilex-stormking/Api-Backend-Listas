@@ -10,7 +10,7 @@ from fpdf import FPDF
 import random
 import string
 import hashlib
-
+import json
 dato=get_settings()
 
 def generar_password(longitud):
@@ -203,13 +203,14 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
     if not lists:
         lists=[]
     
-    lista1 = {'Nombre':[],'ListaOnu':[],'ListaOfac':[],'ListaFBI':[],'ListaCargue':[]}
+    lista1 = []
     writer=pd.ExcelWriter(dato.NAME_ARCHIVO_REPORTE)
     for nombre_busca in lista:
             
             val_ofac= ' '
             val_onu = ' '
             val_fbi = ' '
+            nivel = coincidencia
             id_busca = nombre_busca[0]
             nombre_busca=nombre_busca[1].upper()
             comprueba1= buscar(nombre_busca, coincidencia, lists)
@@ -235,12 +236,14 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
                 identificacion = str(datos[3])
                 p= jaro.jaro_metric(id_busca,identificacion)
                 if p>= coinci :
-                    val_ofac='X'
+                    val_ofac=True
                 if val_ofac == ' ':
                     nombre = str(datos[1])
                     p= jaro.jaro_metric(nombre_busca,nombre)
                     if p>= coinci :
-                        val_ofac='X'
+                        val_ofac = True
+                    else:
+                        val_ofac = False
 
             #Onu
             url =dato.URLONU
@@ -251,13 +254,15 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
                 identificacion = str(datos[3])
                 p= jaro.jaro_metric(id_busca,identificacion)
                 if p>= coinci :
-                    val_onu='X'
+                    val_onu= True
                 if val_onu == ' ':
                     nombre = str(datos[1])
                     p= jaro.jaro_metric(nombre_busca,nombre)
                     if p>= coinci :
-                        val_onu='X'
-            
+                        val_onu = True
+                    else :
+                        val_onu = False
+
             url =dato.URLFBI
             data = requests.get(url)
             if data.status_code == 200:
@@ -266,80 +271,92 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
                 datos=str(datos)
                 p= jaro.jaro_metric(nombre_busca,datos)
                 if p>= coinci :
-                    val_onu='X'
+                    val_onu = True
+                else:
+                    val_onu = False
 
             #añadir a lista
-            lista1['Nombre'].append(nombre_busca)
-            lista1['ListaOfac'].append(val_ofac)
-            lista1['ListaOnu'].append(val_onu)
-            lista1['ListaFBI'].append(val_fbi)
-            lista1['ListaCargue'].append(cadena)
+            item = {
+                'Nombre': nombre_busca,
+                'ListaOfac': val_ofac,
+                'ListaOnu': val_onu,
+                'ListaFBI': val_fbi,
+                'Lista_Coincide': cadena,
+                'Nivel_Coincidencia': nivel
+            }
+            lista1.append(item)
+            # lista1['Nombre'].append(nombre_busca)
+            # lista1['ListaOfac'].append(val_ofac)
+            # lista1['ListaOnu'].append(val_onu)
+            # lista1['ListaFBI'].append(val_fbi)
+            # lista1['Lista_Coincide'].append(cadena)
+            # lista1['Nivel_Coincidencia'].append(nivel)
    
-    nombre_archivo = "mi_dataframe.xlsx"
-    df1=pd.DataFrame(lista1, columns=['Nombre','ListaOfac','ListaOnu','ListaFBI','ListaCargue'])
-    df1.to_excel(nombre_archivo,index=True)
+    # nombre_archivo = "mi_dataframe.xlsx"
+    # df1 = pd.DataFrame(lista1, columns=['Nombre','ListaOfac','ListaOnu','ListaFBI','Lista_Coincide','Nivel_Coincidencia'])
+    # df1 = df1.to_json(orient='records')
     
-    pdf=FPDF()
-    pdf.encoding = 'cp1252'  # Cambia la codificación a 'utf-8' o 'cp1252'
-    pdf.add_page()
-    pdf.set_font("Arial",size=18)
-    pdf.image("Imagen3.jpg", x=5, y=5, w=25, h=15)
-    pdf.cell(0, 10, "Mi Reporte LPR", align="C")
-    pdf.ln(20)
-    pdf.image("7.jpg", x=180, y=5, w=20, h=20)
-    pdf.ln(60)
+    # pdf=FPDF()
+    # pdf.encoding = 'cp1252'  # Cambia la codificación a 'utf-8' o 'cp1252'
+    # pdf.add_page()
+    # pdf.set_font("Arial",size=18)
+    # pdf.image("Imagen3.jpg", x=5, y=5, w=25, h=15)
+    # pdf.cell(0, 10, "Mi Reporte LPR", align="C")
+    # pdf.ln(20)
+    # pdf.image("7.jpg", x=180, y=5, w=20, h=20)
+    # pdf.ln(60)
 
-    # Cabecera de la tabla
-    pdf.set_font("Arial",size=12)
-    r,g,b=52, 152, 219
-    pdf.cell(20)
-    pdf.set_fill_color(r,g,b)
-    pdf.cell(40,10,"Nombre", border=1, align="C",fill=True)
-    pdf.set_fill_color(r,g,b)
-    pdf.cell(30,10,"Lista Ofac", border=1,align="C",fill=True)
-    pdf.set_fill_color(r,g,b)
-    pdf.cell(30,10,"Lista Onu", border=1,align="C",fill=True)
-    pdf.set_fill_color(r,g,b)
-    pdf.cell(30,10,"Lista FBI", border=1,align="C",fill=True)
-    pdf.set_fill_color(r,g,b)
-    pdf.cell(30,10,"Lista Cargue", border=1,align="C",fill=True)
-    pdf.ln()
+    # # Cabecera de la tabla
+    # pdf.set_font("Arial",size=12)
+    # r,g,b=52, 152, 219
+    # pdf.cell(20)
+    # pdf.set_fill_color(r,g,b)
+    # pdf.cell(40,10,"Nombre", border=1, align="C",fill=True)
+    # pdf.set_fill_color(r,g,b)
+    # pdf.cell(30,10,"Lista Ofac", border=1,align="C",fill=True)
+    # pdf.set_fill_color(r,g,b)
+    # pdf.cell(30,10,"Lista Onu", border=1,align="C",fill=True)
+    # pdf.set_fill_color(r,g,b)
+    # pdf.cell(30,10,"Lista FBI", border=1,align="C",fill=True)
+    # pdf.set_fill_color(r,g,b)
+    # pdf.cell(30,10,"Lista Cargue", border=1,align="C",fill=True)
+    # pdf.ln()
 
     
-    # Agregar filas
-    pdf.set_font("Arial",size=8)
-    for fila in df1.values:
-        pdf.cell(20)
-        i=0
-        for valor in fila:
+    # # Agregar filas
+    # pdf.set_font("Arial",size=8)
+    # for fila in df1.values:
+    #     pdf.cell(20)
+    #     i=0
+    #     for valor in fila:
 
-            if i == 0:
-                pdf.set_font("Arial",size=8)
-                pdf.cell(40, 30, valor, border=1, align="J")
+    #         if i == 0:
+    #             pdf.set_font("Arial",size=8)
+    #             pdf.cell(40, 30, valor, border=1, align="J")
 
-            else :
-                width = 30
-                height = 30
-                text = valor
-                long_cad = len(valor)
-                if long_cad >22:
+    #         else :
+    #             width = 30
+    #             height = 30
+    #             text = valor
+    #             long_cad = len(valor)
+    #             if long_cad >22:
                     
-                    font_size = fit_text(pdf,width,height,text)
-                    pdf.set_font("Arial", size=font_size)
-                    valor = valor.encode('latin-1').decode('latin-1')
-                    pdf.cell(30, 30, str(valor), border=1, align="J")
-                else:     
-                    valor = valor.encode('latin-1').decode('latin-1')
-                    pdf.cell(30, 30, str(valor), border=1, align="J")     
+    #                 font_size = fit_text(pdf,width,height,text)
+    #                 pdf.set_font("Arial", size=font_size)
+    #                 valor = valor.encode('latin-1').decode('latin-1')
+    #                 pdf.cell(30, 30, str(valor), border=1, align="J")
+    #             else:     
+    #                 valor = valor.encode('latin-1').decode('latin-1')
+    #                 pdf.cell(30, 30, str(valor), border=1, align="J")     
                 
-            i+=1   
-        pdf.ln()
+    #         i+=1   
+    #     pdf.ln()
     
-    # Guardar archivo
-    # pdf.output("tabla.pdf")
+    # # Guardar archivo
+    # # pdf.output("tabla.pdf")
     
     
-    df1.to_excel(writer,'Reporte',index=False)
+    # df1.to_excel(writer,'Reporte',index=False)
     # writer.save()
     
 
@@ -352,7 +369,7 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
 
     lista ={'FirstName':name,'ListOfac':'','ListOnu':'','ListFbi':'','FindDate':today,'Consulta':rand}
     
-    return lista
+    return lista1
 
 
 def reportepdf(nombre_busca,coincidencia,lists):

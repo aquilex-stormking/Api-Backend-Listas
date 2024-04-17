@@ -451,8 +451,8 @@ async def uploadfilemassive(email:str,users:str,file:UploadFile =File(...),db: S
 
 #POST
 #Realiza busqueda por cargue de archivo cruzando todas las listas y envial  al correo
-@app.post("/uploadMassive2/{email}/{users}/{coincidencia}",tags=["Upload"])
-async def uploadfilemassive(email:str,users:str,coincidencia:int,file:UploadFile =File(...),db: Session = Depends(connection.get_db)):
+@app.post("/uploadMassive2/{coincidencia}",tags=["Upload"])
+async def uploadfilemassive(coincidencia:int,file:UploadFile =File(...),db: Session = Depends(connection.get_db)):
     query = db.query(model.Listas_add)
     query = query.order_by(desc(model.Listas_add.fecha))
     lists = query.all()
@@ -471,22 +471,23 @@ async def uploadfilemassive(email:str,users:str,coincidencia:int,file:UploadFile
         lista = procesar_archivo.comprobar3(file.filename,lists,coincidencia)
         busqueda = lista
     
-        new_list = model.Listas(firstname = busqueda['FirstName']
-                            , listofac = busqueda['ListOfac']
-                            , listonu = busqueda['ListOnu']
-                            , listfbi = busqueda['ListFbi']
-                            , finddate = busqueda['FindDate']
-                            , consulta = busqueda['Consulta']
-                            , user = users
-                            )
-        db.add(new_list)
-        db.commit()
-        db.refresh(new_list) 
-        file_path = path.join(path.abspath(getcwd()), "", 'mi_dataframe.xlsx')
-        return FileResponse(file_path)
+        # new_list = model.Listas(firstname = busqueda['FirstName']
+        #                     , listofac = busqueda['ListOfac']
+        #                     , listonu = busqueda['ListOnu']
+        #                     , listfbi = busqueda['ListFbi']
+        #                     , finddate = busqueda['FindDate']
+        #                     , consulta = busqueda['Consulta']
+        #                     , user = users
+        #                     )
+        # db.add(new_list)
+        # db.commit()
+        # db.refresh(new_list) 
+        # file_path = path.join(path.abspath(getcwd()), "", 'mi_dataframe.xlsx')
+        # return FileResponse(file_path)
+
 
         # sendmail.sendmail(email)
-        return new_list
+        return lista
 
 #POST
 #Recibe parametros para presentar informe individual 
