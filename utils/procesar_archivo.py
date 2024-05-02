@@ -54,8 +54,8 @@ def comprobar3(name:str,lists:list,coincidencia:int):
     
     book= openpyxl.load_workbook(url2+name, data_only=True)
     hoja = book.active
-    celdas_id = hoja['A2':'A500']
-    celdas_nombre = hoja['B2':'B500']
+    celdas_id = hoja['A2':'A2000']
+    celdas_nombre = hoja['B2':'B2000']
     lista_cargue = []
     identificacion = []
     nombre = []
@@ -143,10 +143,11 @@ def buscar2_nombre(name:str,coincidencia:int):
 def comprobar(name:str):
     book= openpyxl.load_workbook(url+name, data_only=True)
     hoja = book.active
-    celdas = hoja['A2':'A1001']
-    celdas2 = hoja['B2':'B1001']
+    celdas = hoja['A2':'A282001']
+    celdas2 = hoja['B2':'B282001']
     lista_cargue = []
-    filename =os.path.splitext(name)[0] + '.pkl'
+    filename = os.path.splitext(name)[0] + '.pkl'
+    registros = 0
     for fila,fila2 in zip(celdas,celdas2):
         identificacion = [celda.value for celda in fila]
         nombre = [celda.value for celda in fila2]
@@ -154,11 +155,13 @@ def comprobar(name:str):
             identificacion= str(identificacion[0])
             nombre= str(nombre[0])
             nombre = nombre.upper()
+            registros += 1 
             lista_cargue.append((identificacion,nombre))
     dcargue= pd.DataFrame(lista_cargue, columns=['Identificacion','Firstname'])
     #almacenar datos en la base de datos sql
     dcargue.to_pickle(url+filename)
-    return filename
+    lista = {'nombre':filename, 'registros':registros}
+    return lista
 
 
 #Busca Persona en listas

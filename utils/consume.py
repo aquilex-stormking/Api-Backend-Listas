@@ -234,11 +234,13 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
                 data_ofac= data.json()
             for datos in data_ofac :
                 identificacion = str(datos[3])
+
                 p= jaro.jaro_metric(id_busca,identificacion)
                 if p>= coinci :
                     val_ofac = True
                 if val_ofac == ' ':
                     nombre = str(datos[1])
+                    print(datos[1])
                     p= jaro.jaro_metric(nombre_busca,nombre)
                     if p>= coinci :
                         val_ofac = True

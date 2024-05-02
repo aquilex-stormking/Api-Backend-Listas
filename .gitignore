@@ -3,4 +3,4 @@ files/**
 files2/**
 photos/**
 __pycache__/
-.env
+*.env.sample

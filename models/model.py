@@ -43,6 +43,16 @@ class Listas_add(Base):
     id = Column(Integer, primary_key=True)
     descripcion= Column(String(100))
     fecha= Column(Date)
+    fecha_ant = Column(Date)
+
+class Registros(Base):
+    __tablename__ = 'registros'
+    
+    id = Column(Integer, primary_key=True)
+    descripcion= Column(String(100))
+    registros= Column(Integer)
+    fecha = Column(Date)
+
         
 
 

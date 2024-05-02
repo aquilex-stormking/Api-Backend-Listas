@@ -18,6 +18,8 @@ import shutil
 import pandas as pd
 from PIL import Image
 import requests
+import schedule
+import time, json
 
 #algorimo 
 ALGORITHM="HS256"
@@ -333,15 +335,13 @@ async def uploadfile(file:UploadFile =File(...),  db1: Session =Depends(auth_use
 
 #POST
 #Caga lista personalizada
-@app.post("/upload2")
+@app.post("/upload2" ,tags=['Upload'])
 async def uploadfile_2(file:UploadFile =File(...),settings: Settings = Depends(get_settings),db: Session = Depends(connection.get_db)):
     
     existe= path.exists("files")
-    if existe:
-        await delete_file("files")
+    if not existe:
         mkdir("files")
-    else :
-        mkdir("files")
+    
     with open(getcwd()+"/files/"+ file.filename, "wb") as myfile:
         content = await file.read()
         myfile.write(content)
@@ -349,15 +349,43 @@ async def uploadfile_2(file:UploadFile =File(...),settings: Settings = Depends(g
         today = str(date.today())
         os.rename('files/'+file.filename,'files/'+file.filename)
         name = procesar_archivo.comprobar(file.filename)
+        registros = name['registros']
+        print(registros)
+        name = name['nombre']
+        if registros > 281000 :
+            result = f"excedes el total de resgistros permitidos estas cargando {registros} registros lo permitido son: 281000 "
+        else:
+            existing_item = db.query(model.Listas_add).filter(model.Listas_add.descripcion == name).first()
+            if existing_item:
+                existing_item.fecha = today   
+                db.commit()
+                lista = db.query(model.Registros).filter(model.Registros.descripcion == name).first()
+                lista.registros = registros
+                lista.fecha = today
+                db.commit()
+                result = "cargue actualizado exitosamente"
+            else:
+                new_list2 = model.Listas_add( descripcion = name
+                                ,fecha = today
+                                ,fecha_ant = today
+                                )
+                db.add(new_list2)
+                db.commit()    
+                # Actualiza base de datos
+                # db.refresh(new_list2) 
+                ultimo_id = db.query(model.Registros.id).order_by(desc(model.Registros.id)).first()
+                ultimo_id = ultimo_id[0] +1
+                new_list = model.Registros( id = ultimo_id,
+                                            descripcion = name,
+                                            registros = registros,
+                                            fecha = today
+                                        )
+                db.add(new_list)
+                db.commit()
+                db.refresh(new_list)
+                result = "cargue subido exitosamente"
 
-        new_list2 = model.Listas_add( descripcion = name
-                            ,fecha = today
-                            )
-        db.add(new_list2)
-        db.commit()    
-        # Actualiza base de datos
-        db.refresh(new_list2) 
-    return "success"
+    return result
 
 
 #GET
@@ -602,3 +630,43 @@ async def download_file(file_path: str, response: Response):
         return Response(content=contents, media_type=media_type, status_code=200)
     else:
         return {"detail": "File not found."}
+    
+
+# Definir un endpoint en FastAPI que llama a la función get_lists para actualizar listas!
+@app.get("/actualizar_registros",tags=['Upload'])
+def  get_lists(db: Session = Depends(connection.get_db)):
+    datos = requests.get(dato.URLACTUALIZA) 
+    datos_dict = json.loads(datos.content)
+    today = str(date.today())
+    registros_ofac = datos_dict['registros_ofac']
+    registros_onu = datos_dict['registros_onu']
+    registros_fbi = datos_dict['registros_fbi']
+    name_ofac = "LISTA OFAC"
+    name_onu = "LISTA ONU"
+    name_fbi = "LISTA FBI"
+
+    ofac = db.query(model.Registros).filter(model.Registros.descripcion == name_ofac).first()
+    ofac.registros = registros_ofac 
+    ofac.fecha = today 
+    db.commit()
+
+    onu = db.query(model.Registros).filter(model.Registros.descripcion == name_onu).first()
+    onu.registros = registros_onu 
+    onu.fecha = today 
+    db.commit()
+
+    fbi = db.query(model.Registros).filter(model.Registros.descripcion == name_fbi).first()
+    fbi.registros = registros_fbi 
+    fbi.fecha = today 
+    db.commit()
+
+    return {"message": "Registros actualizados correctamente"}
+
+
+# Definir un endpoint en FastAPI que llama a la función get_lists
+@app.get("/mostrar_registros",tags=['Upload'])
+def  get_registros(db: Session = Depends(connection.get_db)):
+    registros = db.query(model.Registros)
+    registros = registros.order_by(model.Registros.id)
+    lists = registros.all()
+    return lists
