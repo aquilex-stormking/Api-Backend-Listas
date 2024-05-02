@@ -528,10 +528,10 @@ async def info_person(nombre_busca:str, coincidencia:int,lists:str,db1: Session 
 
 #POST
 #Recibe parametros para presentar informe individual 
-@app.get("/listas", response_model=List[schema.List_addFound])
-async def info_listas( db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user),settings: Settings = Depends(get_settings)):
+@app.get("/listas", response_model=List[schema.List_addFound], tags=['Upload'])
+async def info_listas( db: Session = Depends(connection.get_db), settings: Settings = Depends(get_settings)):
     query = db.query(model.Listas_add)
-    query = query.order_by(desc(model.Listas_add.fecha))
+    # query = query.order_by(desc(model.Listas_add.fecha))
     lists = query.all()
     return lists 
 
