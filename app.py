@@ -670,3 +670,61 @@ def  get_registros(db: Session = Depends(connection.get_db)):
     registros = registros.order_by(model.Registros.id)
     lists = registros.all()
     return lists
+
+@app.get("/mostrar_registros2", tags=['Upload'])
+def get_registros2(db: Session = Depends(connection.get_db)):
+    registros_query = db.query(model.Registros)
+    listas_query = db.query(model.Listas_add)
+
+    # Obtener todas las instancias de registros y listas
+    registros = registros_query.all()
+    listas = listas_query.all()
+
+    # Crear un diccionario para mapear descripciones a registros
+    registros_dict = {registro.descripcion: registro for registro in registros}
+
+    # Combinar listas basadas en la coincidencia de descripciones
+    registros_combinados = []
+    for lista in listas:
+        descripcion = lista.descripcion
+        if descripcion in registros_dict:
+            # Si hay coincidencia, combinar campos de registros y listas
+            registro = registros_dict[descripcion]
+            registro_dict = {
+                "id_registro": registro.id,
+                "descripcion_registro": registro.descripcion,
+                "fecha_registro": registro.fecha,
+                "id_lista": lista.id,
+                "descripcion_lista": lista.descripcion,
+                "fecha_lista": lista.fecha,
+                "fecha_ant_lista": lista.fecha_ant
+            }
+        else:
+            # Si no hay coincidencia, agregar campos de la lista con valores nulos o vacíos
+            registro_dict = {
+                "id_registro": None,
+                "descripcion_registro": None,
+                "fecha_registro": None,
+                "id_lista": lista.id,
+                "descripcion_lista": lista.descripcion,
+                "fecha_lista": lista.fecha,
+                "fecha_ant_lista": lista.fecha_ant
+            }
+        registros_combinados.append(registro_dict)
+
+    # Comprobar si hay registros sin lista correspondiente
+    for registro in registros:
+        descripcion = registro.descripcion
+        if descripcion not in [lista.descripcion for lista in listas]:
+            registro_dict = {
+                "id_registro": registro.id,
+                "descripcion_registro": registro.descripcion,
+                "fecha_registro": registro.fecha,
+                "id_lista": None,
+                "descripcion_lista": None,
+                "fecha_lista": None,
+                "fecha_ant_lista": None
+            }
+            registros_combinados.append(registro_dict)
+
+    return registros_combinados
