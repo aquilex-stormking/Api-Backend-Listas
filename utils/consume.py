@@ -206,7 +206,6 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
     lista1 = []
     writer=pd.ExcelWriter(dato.NAME_ARCHIVO_REPORTE)
     for nombre_busca in lista:
-            
             val_ofac= False
             val_onu = False
             val_fbi = False
@@ -240,7 +239,6 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
                     val_ofac = True
                 if val_ofac == ' ':
                     nombre = str(datos[1])
-                    print(datos[1])
                     p= jaro.jaro_metric(nombre_busca,nombre)
                     if p>= coinci :
                         val_ofac = True
@@ -277,6 +275,7 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
             #añadir a lista
             item = {
                 'Nombre': nombre_busca,
+                'identificacion':id_busca,
                 'ListaOfac': val_ofac,
                 'ListaOnu': val_onu,
                 'ListaFBI': val_fbi,
@@ -284,79 +283,7 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
                 'Nivel_Coincidencia': nivel
             }
             lista1.append(item)
-            # lista1['Nombre'].append(nombre_busca)
-            # lista1['ListaOfac'].append(val_ofac)
-            # lista1['ListaOnu'].append(val_onu)
-            # lista1['ListaFBI'].append(val_fbi)
-            # lista1['Lista_Coincide'].append(cadena)
-            # lista1['Nivel_Coincidencia'].append(nivel)
-   
-    # nombre_archivo = "mi_dataframe.xlsx"
-    # df1 = pd.DataFrame(lista1, columns=['Nombre','ListaOfac','ListaOnu','ListaFBI','Lista_Coincide','Nivel_Coincidencia'])
-    # df1 = df1.to_json(orient='records')
-    
-    # pdf=FPDF()
-    # pdf.encoding = 'cp1252'  # Cambia la codificación a 'utf-8' o 'cp1252'
-    # pdf.add_page()
-    # pdf.set_font("Arial",size=18)
-    # pdf.image("Imagen3.jpg", x=5, y=5, w=25, h=15)
-    # pdf.cell(0, 10, "Mi Reporte LPR", align="C")
-    # pdf.ln(20)
-    # pdf.image("7.jpg", x=180, y=5, w=20, h=20)
-    # pdf.ln(60)
-
-    # # Cabecera de la tabla
-    # pdf.set_font("Arial",size=12)
-    # r,g,b=52, 152, 219
-    # pdf.cell(20)
-    # pdf.set_fill_color(r,g,b)
-    # pdf.cell(40,10,"Nombre", border=1, align="C",fill=True)
-    # pdf.set_fill_color(r,g,b)
-    # pdf.cell(30,10,"Lista Ofac", border=1,align="C",fill=True)
-    # pdf.set_fill_color(r,g,b)
-    # pdf.cell(30,10,"Lista Onu", border=1,align="C",fill=True)
-    # pdf.set_fill_color(r,g,b)
-    # pdf.cell(30,10,"Lista FBI", border=1,align="C",fill=True)
-    # pdf.set_fill_color(r,g,b)
-    # pdf.cell(30,10,"Lista Cargue", border=1,align="C",fill=True)
-    # pdf.ln()
-
-    
-    # # Agregar filas
-    # pdf.set_font("Arial",size=8)
-    # for fila in df1.values:
-    #     pdf.cell(20)
-    #     i=0
-    #     for valor in fila:
-
-    #         if i == 0:
-    #             pdf.set_font("Arial",size=8)
-    #             pdf.cell(40, 30, valor, border=1, align="J")
-
-    #         else :
-    #             width = 30
-    #             height = 30
-    #             text = valor
-    #             long_cad = len(valor)
-    #             if long_cad >22:
-                    
-    #                 font_size = fit_text(pdf,width,height,text)
-    #                 pdf.set_font("Arial", size=font_size)
-    #                 valor = valor.encode('latin-1').decode('latin-1')
-    #                 pdf.cell(30, 30, str(valor), border=1, align="J")
-    #             else:     
-    #                 valor = valor.encode('latin-1').decode('latin-1')
-    #                 pdf.cell(30, 30, str(valor), border=1, align="J")     
-                
-    #         i+=1   
-    #     pdf.ln()
-    
-    # # Guardar archivo
-    # # pdf.output("tabla.pdf")
-    
-    
-    # df1.to_excel(writer,'Reporte',index=False)
-    # writer.save()
+           
     
 
     #Generador de id de consulta
