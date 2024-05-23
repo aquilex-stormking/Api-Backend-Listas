@@ -78,8 +78,8 @@ def search_password_db(lists:list,pos:str, passw:str):
 
 #GET
 #consulta en las listas y devuelve lista
-@app.get("/Consume/{nombre_busca}/{users}/{coincidencia}")
-async def Consume(nombre_busca:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+@app.get("/Consume/{nombre_busca}/{users}/{coincidencia}",tags=['Upload'])
+async def Consume(nombre_busca:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db)):
     busqueda = con.consumir(nombre_busca,coincidencia) 
     new_list = model.Listas(firstname = busqueda['FirstName']
                             , listofac = busqueda['ListOfac']
@@ -97,8 +97,8 @@ async def Consume(nombre_busca:str,users:str,coincidencia:int,db: Session = Depe
 
 #GET
 #consulta en las listas y devuelve lista
-@app.get("/Consumes/{id}/{users}/{coincidencia}")
-async def consume(id:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db), db1: Session =Depends(auth_user)):
+@app.get("/Consumes/{id}/{users}/{coincidencia}",tags=['Upload'])
+async def consume(id:str,users:str,coincidencia:int,db: Session = Depends(connection.get_db)):
 
     busqueda=con.consumir_id(id,coincidencia) 
     
@@ -497,7 +497,6 @@ async def uploadfilemassive(coincidencia:int,file:UploadFile =File(...),db: Sess
         myfile.write(content)
         myfile.close()
         lista = procesar_archivo.comprobar3(file.filename,lists,coincidencia)
-        busqueda = lista
     
         # new_list = model.Listas(firstname = busqueda['FirstName']
         #                     , listofac = busqueda['ListOfac']
@@ -515,7 +514,11 @@ async def uploadfilemassive(coincidencia:int,file:UploadFile =File(...),db: Sess
 
 
         # sendmail.sendmail(email)
-        return lista
+        filtered_data = [
+            entry for entry in lista
+            if not (entry["ListaOfac"] == False and entry["ListaOnu"] == False and entry["ListaFBI"] == False and entry["Lista_Coincide"] == "")
+        ]
+        return filtered_data
 
 #POST
 #Recibe parametros para presentar informe individual 
@@ -697,6 +700,7 @@ def get_registros2(db: Session = Depends(connection.get_db)):
                 "id_lista": lista.id,
                 "descripcion_lista": lista.descripcion,
                 "fecha_lista": lista.fecha,
+                "registros":registro.registros,
                 "fecha_ant_lista": lista.fecha_ant
             }
         else:
@@ -705,6 +709,7 @@ def get_registros2(db: Session = Depends(connection.get_db)):
                 "id_registro": None,
                 "descripcion_registro": None,
                 "fecha_registro": None,
+                "registros": registro.registros,
                 "id_lista": lista.id,
                 "descripcion_lista": lista.descripcion,
                 "fecha_lista": lista.fecha,
@@ -721,6 +726,7 @@ def get_registros2(db: Session = Depends(connection.get_db)):
                 "descripcion_registro": registro.descripcion,
                 "fecha_registro": registro.fecha,
                 "id_lista": None,
+                "registros": registro.registros,
                 "descripcion_lista": None,
                 "fecha_lista": None,
                 "fecha_ant_lista": None

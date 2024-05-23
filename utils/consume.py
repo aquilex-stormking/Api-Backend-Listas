@@ -216,7 +216,11 @@ def consumir_2(lista:list,name:str,coincidencia=None,lists=None):
             comprueba2= buscar(id_busca, coincidencia, lists)
             cadena1 = ''.join(comprueba1)
             cadena2 = ''.join(comprueba2)
-            cadena = cadena1 + ", " + cadena2
+            if cadena1 != '':
+                cadena = cadena1 + ", " + cadena2
+            else:
+                cadena = cadena1 + "" + cadena2
+
             cant_carac = len(cadena)
             if cant_carac > 22 :
                 ancho =True
